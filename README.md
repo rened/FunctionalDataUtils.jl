@@ -1,6 +1,6 @@
-# FDUtils
+# FunctionalDataUtils
 
-[![Build Status](https://travis-ci.org/rened/FDUtils.jl.svg?branch=master)](https://travis-ci.org/rened/FDUtils.jl)
+[![Build Status](https://travis-ci.org/rened/FunctionalDataUtils.jl.svg?branch=master)](https://travis-ci.org/rened/FunctionalDataUtils.jl)
 
 Utility functions based on [FunctionData.jl](http://github.com/rened/FunctionalData.jl), mostly from the area of computer vision and machine learning.
 
