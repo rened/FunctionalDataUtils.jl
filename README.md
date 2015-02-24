@@ -5,7 +5,7 @@
 Utility functions based on [FunctionData.jl](http://github.com/rened/FunctionalData.jl), mostly from the area of computer vision and machine learning.
 
 ## Numerical
-```
+```jl
 normsum, normsum!                   # normalize sum to 1
 norm01, norm01!                     # normalize to the range 0..1
 normeuclid, normeuclid!             # normalize to L2 norm == 1
@@ -25,7 +25,7 @@ distance(a[,b])                     # L2 norm between all items in a and b
 
 ## Computer Vision
 
-```
+```jl
 iimg(a)                             # integral image / volume
 iimg!(a)                            # integral image / volume
 interp3(a,m,n,o)                    # interpolate a at m,n,o
@@ -61,7 +61,7 @@ inpointcloud(point, cloud)                  # is point inside pointcloud?
 
 ## Computing
 
-```
+```jl
 @timedone
 fasthash
 cache
@@ -75,7 +75,7 @@ reloadmodules
 
 ## Graphics
 
-```
+```jl
 jetcolormap(n)                      # 3 x n jet colormap like in Matlab
 asimagesc(a)                        # m x n x 3 RGB array with image like Matlab's imagesc
 blocksvisu(a)                       # visualization of patches / blocks
