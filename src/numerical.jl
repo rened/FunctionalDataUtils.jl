@@ -6,14 +6,14 @@ export clamp
 export nanfunction, nanmean, nanstd, nanmedian
 export distance
 export randbase
-export mean_, std_, var_
+export mean_, std_, var_, min_, max_
 
 
 #######################################
 ##  normsum, norm01, normeuclid, normmeanstd
 ##  normsum!, norm01!, normeuclid!, normmeanstd!
 
-copyfloat{T<:Integer}(a::Array{T}) = float(a)
+copyfloat{T<:Int}(a::Array{T}) = float(a)
 copyfloat{T}(a::Array{T}) = copy(a)
 
 normsum(a) = normsum!(copyfloat(a))
@@ -245,7 +245,7 @@ function zcawhitening(a; kargs...)
 end
 
 pcawhitening(a, base = []; kargs...) = zcawhitening(a, base; pcawhitening = true, kargs...)
-function zcawhitening{T<:Real}(a::Array{T}, base = [];  perpatchnormalization = false, pcawhithening = false)
+function zcawhitening{T<:Real}(a::Array{T}, base = [];  perpatchnormalization = false, pcawhitening = false, keepvar = 0.95)
     # a ... nDim x nSamples
     if perpatchnormalization
         a = a .- mean(a,1)
@@ -264,7 +264,7 @@ function zcawhitening{T<:Real}(a::Array{T}, base = [];  perpatchnormalization = 
     coeff = base.base' * (a .- base.mean)
     S = base.vars
     r = diagm(1./sqrt(base.vars .+ 1e-5)) * coeff
-    if !pcawhithening
+    if !pcawhitening
         r = base.base * r
     end
     r, base
@@ -280,10 +280,10 @@ function distance{T}(a::Vector{T},b::Vector{T})
     sqrt(r)
 end
 
-distance{T1,T2}(a::Array{T1,1},b::Array{T2,2}) = distance(col(a),b)
-distance{T1,T2}(a::Array{T1,2},b::Array{T2,1}) = distance(a,col(b))
+distance{T1,T2}(a::AbstractArray{T1,1},b::AbstractArray{T2,2}) = distance(col(a),b)
+distance{T1,T2}(a::AbstractArray{T1,2},b::AbstractArray{T2,1}) = distance(a,col(b))
 
-function distance{T1,T2}(a::Array{T1,2},b::Array{T2,2})
+function distance{T1,T2}(a::AbstractArray{T1,2},b::AbstractArray{T2,2})
     #% Author   : Roland Bunschoten
     #%            University of Amsterdam
     #%            Intelligent Autonomous Systems (IAS) group
@@ -312,3 +312,5 @@ randbase(basedim, origdim) = map(randn(origdim, basedim),normeuclid)'
 mean_(a) = mean(a, ndims(a))   
 std_(a) = std(a, ndims(a))
 var_(a) = var(a, ndims(a))
+min_(a) = minimum(a, ndims(a))
+max_(a) = maximum(a, ndims(a))

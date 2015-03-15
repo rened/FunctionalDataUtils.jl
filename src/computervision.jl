@@ -56,12 +56,12 @@ function interp3{T}(a::Union(Array{T,2}, Array{T,3}), m_::Float64, n_::Float64, 
   wm = 1-rem(m_)
   wn = 1-rem(n_)
   wo = 1-rem(o_)
-  m = floor(Integer,m_)
-  M = ceil(Integer,m_)
-  n = floor(Integer,n_)
-  N = ceil(Integer,n_)
-  o = floor(Integer,o_)
-  O = ceil(Integer,o_)
+  m = floor(Int,m_)
+  M = ceil(Int,m_)
+  n = floor(Int,n_)
+  N = ceil(Int,n_)
+  o = floor(Int,o_)
+  O = ceil(Int,o_)
   
 #  @show wm wn wo m n o M N O
 #@show "got here" wm wn wo m M n N o O size(a)
@@ -82,7 +82,7 @@ interp3with01coords(a,m,n,o) = interp3(a, 1+(size(a,1)-1)*m, 1+(size(a,2)-1)*n, 
 #####################################################
 ##   resize
 
-resize(a, factor::Integer) = resize(a, round(factor*siz(a)), nearest = true)
+resize(a, factor::Int) = resize(a, round(factor*siz(a)), nearest = true)
 resize(a, factor::Number) = resize(a, round(factor*siz(a)))
 function resize{T<:Real}(a::Array{T}, s::Union(AbstractArray); nearest = false)
     if size(a) == tuple(s...)
@@ -215,7 +215,7 @@ meshgrid(rm::AbstractArray, rn::AbstractArray, ro::AbstractArray) = [row([m for 
 meshgrid3{T}(a::Array{T,2}) = meshgrid(reshape(a, size(a,1), size(a,2), 1))
 meshgrid3{T}(a::Array{T,3}) = meshgrid(a)
 
-centeredmeshgrid(a...) = let r = meshgrid(a...); ceil(Integer, r .- mean(r,2)) end
+centeredmeshgrid(a...) = let r = meshgrid(a...); ceil(Int, r .- mean(r,2)) end
 
 # centeredgrid{T}(v::Array{T,2}) = grid((1:size(v,1))-size(v,1)/2, (1:size(v,2))-size(v,2)/2)
 # centeredgrid{T}(v::Array{T,3}) = grid((1:size(v,1))-size(v,1)/2, (1:size(v,2))-size(v,2)/2, (1:size(v,3))-size(v,3)/2)
@@ -262,8 +262,8 @@ function monogen_(img::Array{Float32,2}, wavelength::Float32)
   cols = size(img,2)
   
   # Generate horizontal and vertical frequency grids that vary from
-  (u2, u1) = grid([linspace(0.,0.5,ifloor(rows/2)), linspace(-0.5,0.,ceil(Integer,rows/2))],
-  [linspace(0.,0.5,ifloor(cols/2)), linspace(-0.5,.0,ceil(Integer,cols/2))])
+  (u2, u1) = grid([linspace(0.,0.5,ifloor(rows/2)), linspace(-0.5,0.,ceil(Int,rows/2))],
+  [linspace(0.,0.5,ifloor(cols/2)), linspace(-0.5,.0,ceil(Int,cols/2))])
 
   radius = sqrt(u1.^2 + u2.^2)    # Matrix values contain frequency
   radius[1,1] = 1
@@ -310,8 +310,8 @@ function monogen_(img::Array{Float32,3}, wavelength::Float32)
 
   img = myfft(img)
   (rows,cols,channels) = size(img)
-  (u2, u1, u3) = grid([linspace(0.,0.5,ifloor(rows/2)), linspace(-0.5,0.,ceil(Integer,rows/2))],[linspace(0.,0.5,ifloor(cols/2)), linspace(-0.5,0.,ceil(Integer,cols/2))],
-  [linspace(0.,0.5,ifloor(channels/2)), linspace(-0.5,0.,ceil(Integer,channels/2))]);
+  (u2, u1, u3) = grid([linspace(0.,0.5,ifloor(rows/2)), linspace(-0.5,0.,ceil(Int,rows/2))],[linspace(0.,0.5,ifloor(cols/2)), linspace(-0.5,0.,ceil(Int,cols/2))],
+  [linspace(0.,0.5,ifloor(channels/2)), linspace(-0.5,0.,ceil(Int,channels/2))]);
 
    radius = sqrt(u1.^2 + u2.^2 + u3.^2);    # Matrix values contain frequency
     # values as a radius from centre
@@ -463,9 +463,9 @@ function monoslic(img::Array{Float32}, spacing::Float32)
     myind2sub(a,i) = ind2sub(size(a),i)
     for c = cand
         (m,n,o) = myind2sub(M,c)
-        mi = round(Integer, m/spacing+0.5)
-        ni = round(Integer, n/spacing+0.5)
-        oi = round(Integer, o/spacing+0.5)
+        mi = round(Int, m/spacing+0.5)
+        ni = round(Int, n/spacing+0.5)
+        oi = round(Int, o/spacing+0.5)
         mi = min(mi, csm)
         ni = min(ni, csn)
         oi = min(oi, cso)

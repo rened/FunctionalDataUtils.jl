@@ -18,7 +18,7 @@ function asimagesc(a, norm = true)
     cm = jetcolormap(256)
     r = Array(Float32, size(a, 1), size(a, 2), 3)
     normf = norm ? norm01 : identity
-    b = round(Integer, normf(a)*255) .+ 1
+    b = round(Int, normf(a)*255) .+ 1
     r[:,:,1] = cm[1, b[:]]
     r[:,:,2] = cm[2, b[:]]
     r[:,:,3] = cm[3, b[:]]
@@ -28,10 +28,10 @@ end
 function blocksvisu(a)
     n = len(a)
     typ = eltype(fst(a))
-    padsize(a) = ceil(Integer,a/4)
+    padsize(a) = ceil(Int,a/4)
     a = @p map a reshape | unstack
     z = @p zeros typ padsize(size(fst(a),1)) size(fst(a),2)
-    a = @p partsoflen a ceil(Integer,sqrt(n)) | map riffle z | map col | map flatten
+    a = @p partsoflen a ceil(Int,sqrt(n)) | map riffle z | map col | map flatten
     z = @p zeros typ size(fst(a),1) padsize(size(fst(a),2))
     a[end] = @p pad a[end] siz(fst(a))
     @p riffle a z | row | flatten
