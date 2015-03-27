@@ -2,7 +2,7 @@ export normsum, norm01, normeuclid, normmean, normmeanstd
 export normsum!, norm01!, normeuclid!, normmean!, normmeanstd!
 export normunique, valuemap
 export pcawhitening, zcawhitening, WhiteningBase
-export clamp
+export clamp, clamp!
 export nanfunction, nanmean, nanstd, nanmedian
 export distance
 export randbase
@@ -132,6 +132,7 @@ function clamp!{T}(a::Array{T,2}, mi::Union(Array,Tuple), ma::Union(Array,Tuple)
     for j = 1:size(a,2), i = 1:size(a,1)
         a[i,j] = min(max(mi[i],a[i,j]), ma[i])
     end
+    a
 end
 clamp(a::Tuple, mi::Union(AbstractArray,Tuple), ma::Union(AbstractArray,Tuple)) = (r = Base.copy(a); clamp!(r,mi,ma); r)
 function clamp!(a, mi, ma)
@@ -141,6 +142,7 @@ function clamp!(a, mi, ma)
     for i = 1:length(a)
         a[i] = min(max(mi[i],a[i]), ma[i])
     end
+    a
 end
 clamp(a, v::Array) = clamp(a, ones(ndims(v),1), siz(v))
 

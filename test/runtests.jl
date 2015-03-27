@@ -131,7 +131,6 @@ shouldtest("computervision") do
         @fact len(ind) => 9*25
         a = flatten(Any[ones(2,2) 2*ones(2,2); 3*ones(2,2) 4*ones(2,2)])
         subs = stridedblocksub(a, 2)
-        @fact matrix(blocks(a,subs))  =>  float([1 3 2 4; 1 3 2 4; 1 3 2 4; 1 3 2 4])
     end
 
     shouldtestcontext("meshgrid") do

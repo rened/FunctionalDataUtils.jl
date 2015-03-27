@@ -53,8 +53,6 @@ rle(a)                                      # run length encoding
 unrle(a)                                    # run lendth decoding
 reshape
 stridedblockcoords(a, blocksiz, stide)      # return tuples of ranges for each subblock
-block(a, ind)                               # cut block from a at tuple with ranges
-blocks(a, inds)                             # map block(a) to inds 
 inpolygon(point, polygon)                   # is point inside polygon? 
 inpointcloud(point, cloud)                  # is point inside pointcloud?
 ```

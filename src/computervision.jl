@@ -2,9 +2,10 @@ using MultivariateStats
 export iimg, iimg!
 export interp3, interp3with01coords, resize, resizeminmax
 export grid, meshgrid, meshgrid3, centeredgrid, centeredmeshgrid, overlaygradient, toranges, tosize, tosize3
-export imregionalmin, imregionalmax, monogen, bwlabel, bwlabel!, monoslic, border, bwdist
+export imregionalmin, imregionalmax, monogen, bwlabel, bwlabel!, monoslic, border, sortcoords, bwdist
+export blocks, blocks!!
 export rle, unrle
-export stridedblocksub, block, blocks
+export stridedblocksub
 export inpolygon, inpointcloud
 
 
@@ -509,12 +510,39 @@ function monoslic(img::Array{Float32}, spacing::Float32)
     int(labels[sv])
 end
 
-border{T}(a::Array{T,2}) = @p border reshape(a,siz3(a)) | fst
+border{T}(a::Array{T,2}) = @p border cat(3,a,a,a) | snd
 function border{T}(a::Array{T,3})
-    offsets = @p row [[m n o]' for m in -1:1, n in -1:1, o in -1:1] | flatten
-    # offsets = [0 0 0]'
-    sm, sn, so = size(a)
-    Bool[let x = [m n o]'; at(a, clamp(x,a)) > 0 && sum(part(a, clamp(x.+offsets, a)).>0) < 27 end for m in 1:sm, n in 1:sn, o in 1:so] 
+    offsets = @p row [[m n o]'+1 for m in -1:1, n in -1:1, o in -1:1] | flatten | map subtoind a | (-) 1
+    r = zeros(a)
+    for ind = subtoind(2*ones(siz(a)),a):subtoind(siz(a)-1,a)
+        a[ind] == 0 && continue
+        isborder = false
+        for i = 1:len(offsets)
+            if a[ind+offsets[i]] == 0
+                isborder = true
+                break
+            end
+        end
+        r[ind] = isborder
+    end
+    r
+end
+
+function sortcoords(coords)
+    if sizem(coords)!=2
+        error("FunctionalDataUtils.sortcoords: only works for 2D contours")
+    end
+    r = zeros(coords)
+    setat!(r,1,fst(coords))
+    nope = fill(typemax(eltype(coords)),size(fst(r)))
+    setat!(coords, 1, nope)
+
+    for i = 1:len(coords)-1
+        ind = @p distance at(r,i) coords | indmin
+        setat!(r,i+1, at(coords,ind))
+        setat!(coords, ind, nope)
+    end
+    r
 end
 
 bwdist(a::Array) = @p bwdist findsub(a) meshgrid(a) | reshape siz(a)
@@ -526,6 +554,40 @@ function bwdist(a, pos)
     end
 end
 
+function blocks{T1,T2}(pos::Array{T1,2}, a::Array{T2,2}; blocksize = 32,
+    scale = 1,
+    grid = scale .* centeredmeshgrid(repeat(blocksize, ndims(a))...),
+    borderstyle = :staysinside, precompute = false)
+    r = similar(a, blocksize^sizem(pos), len(pos))
+    assert(sizem(pos) == ndims(a))
+
+    inds = @p map grid+1 subtoind a | minus 1 | vec
+
+    maxoffset = maximum(abs(grid))
+    mi = ones(sizem(pos),1)*maxoffset+1
+    ma = siz(a)-maxoffset
+    blocks!!(r, copy(pos), a, inds, mi, ma, borderstyle)
+    precompute ? (r, (inds, mi, ma, borderstyle)) : r
+end
+
+function blocks!!{T}(r::Matrix{T}, pos::Matrix{Int}, a::Matrix{T}, inds::Array{Int}, mi, ma, borderstyle)
+    if borderstyle == :staysinside
+        pos = @p clamp! pos mi ma
+        blockssample_internal!(r,pos,a,inds)
+    else
+        error("unknown borderstyle '$borderstyle'")
+    end
+    r
+end
+
+function blockssample_internal!{T}(r, pos::Array{Int,2}, a::Array{T,2}, inds::Array{Int,1})
+    for n = 1:len(pos)
+        posind = sizem(a)*(pos[2,n]-1) + pos[1,n]
+        for m = 1:length(inds)
+            r[m,n] = a[inds[m]+posind]
+        end
+    end
+end
 
 function rle(a)
   r = Dict()
@@ -615,11 +677,6 @@ function stridedblocksub{T}(a::Array{T,3}, blocksiz, stride = blocksiz; keepshap
     keepshape ? r : row(r)
 end
 
-block{T}(a::Array{T}, ind::Tuple) = at(a,ind)
-blocks(a, indices) = @p map vec(indices) x->block(a,x)
-
-
-
 inpolygon(point, polygon) = inpolygon(point[1], point[2], polygon)
 function inpolygon(m::Int, n::Int, polygon)
     j = len(polygon)
@@ -645,7 +702,7 @@ poly2mask{T}(polygon::Array{T,2},M::AbstractArray,N::AbstractArray) = Float32[in
 function inpointcloud(point, cloud, n = 8)
     nearest = at(cloud, indmin(distance(point,cloud)))
     #return distance(nearest,point)
-    around = @p sortperm vec(distance(nearest,cloud)) | part cloud _ | take _ n
+    around = @p sortperm vec(distance(nearest,cloud)) | part cloud _ | take n
     pca = fit(PCA, around.+0.0001*randn(size(around)), pratio = 1., method = :svd)
     line = @p last projection(pca)
     #@show projection(pca)
