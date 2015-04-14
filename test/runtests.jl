@@ -12,11 +12,12 @@ shouldtest("machinelearning") do
         # @test_almostequal (@p randbase 2 10  | (.^) _ 2 |  sum _ 2) [1. 1.]'
     end
 end
+
 shouldtest("computing") do
     shouldtestcontext("fasthash") do
         @fact fasthash(1) => "20eae029a26a15420f9ed6d7a9999e823f251b9d44adea5a504e1d8a4f7c5512"
         @fact fasthash(1.) => "cb5415fc791f65b70b303678e3601d60ac527cc4cdd3a10d1f85b7423b270112"
-        @fact fasthash('a') => "7da6913ea7d70601dd9ea87d66f895e68b80a4391eca7b2b2b312e3580d745d9"
+        @fact fasthash('a') => "02bd3cf2fa502d7ed9fbd7b4c69b6699d03161d6dfde5d0868277429ad7cabb6"
         @fact fasthash("a") => "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         @fact fasthash(["a"]) => "cd372fb85148700fa88095e3492d3f9f5beb43e555e5ff26d95f5a6adc36f8e6"
         @fact fasthash([1]) => "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
@@ -34,6 +35,7 @@ shouldtest("computing") do
         @fact all(r .!= nothing) => true   # just to avoid showing "0 facts verified". we did survive the above, after all.
     end
 end
+
 shouldtest("computervision") do
     shouldtestcontext("iimg") do
         a = [1 2 3]
@@ -102,12 +104,20 @@ shouldtest("computervision") do
     shouldtestcontext("bwdist") do
         a = [0 0 0 1 0 0]
         @fact bwdist(a)  =>  [3 2 1 0 1 2]
-        @fact bwdist([1 10;2 12], [1 10; 1 10])  =>  [1 2]
+        @fact bwdist([1 10;2 12], [1 10; 1 10])  =>  [1,2]
     end
 
-    shouldtestcontext("rle/ unrle") do
+    shouldtestcontext("rle") do
+        data = [1 1 2 2 2 3 3 3 3]
+        @fact unrle(rle(data)) => data
         data = rand(1:5, 1, 1000)
         @fact unrle(rle(data)) => data
+        for t = [Int16, Int32, Int64, Float32, Float64]
+            for s1 = 1:10, s2 = 1:10
+                data = rand(t, s1, s2)
+                @test_equal unrle(rle(data)) data
+            end
+        end
     end
 
     shouldtestcontext("resizeminmax") do
@@ -144,11 +154,11 @@ shouldtest("computervision") do
     shouldtestcontext("inpointcloud") do
         l = row(linspace(0,1,100))
         o = row(ones(100))
-        shape2d = [l o fliplr(l) 0*o; 0*o l o fliplr(l)]*10.+[2.5;5.5]
+        shape2d = [l o flipdim(l,2) 0*o; 0*o l o flipdim(l,2)]*10.+[2.5;5.5]
         shouldbe2d = zeros(30,30)
         shouldbe2d[3:12,6:15] = 1
         coords = meshgrid(30,30)
-        result2d = reshape(float64(map(coords, x->inpointcloud(x, shape2d))), 30,30);
+        result2d = reshape(map(coords, x->inpointcloud(x, shape2d)), 30,30);
         @fact result2d  =>  shouldbe2d
 
         plate1 = [meshgrid(1:10,1:10); zeros(1,100)] 
@@ -162,20 +172,20 @@ shouldtest("computervision") do
         shouldbe3d = zeros(30,30,30)
         shouldbe3d[3:12,6:15,6:15] = 1
         coords = meshgrid(30,30,30)
-        result3d = reshape(float64(map(coords, x->inpointcloud(x, shape3d))), 30,30,30);
+        result3d = reshape(map(coords, x->inpointcloud(x, shape3d)), 30,30,30);
         result3d == shouldbe3d
         @fact sum(result3d-shouldbe3d)  =>  38
     end
 end
 
 shouldtest("graphics") do
-    context("jetcolormap") do
+    shouldtestcontext("jetcolormap") do
         r = jetcolormap(10)
         @fact all(r .>= 0) => true
         @fact all(r .<= 1) => true
     end
 
-    context("asimagesc") do
+    shouldtestcontext("asimagesc") do
         img = [1 2 3 4 5 6 7 8 9]
         r = asimagesc(img)
         @fact size(r,3) => 3
@@ -208,20 +218,20 @@ shouldtest("numerical") do
         @fact distance([1,2,3],[2,2,3])  =>  1
         @fact distance([0 1; 0 1],[0 1; 0 1])  =>  [0. sqrt(2); sqrt(2) 0.]
     end
-    context("norms") do
+    shouldtestcontext("norms") do
         @fact normsum([1 2 1])  =>  [1/4 1/2 1/4]
         @fact norm01([1 2 3])  =>  [0 1/2 1]
         @fact normeuclid([1 1])  =>  1./[sqrt(2) sqrt(2)]
         @fact normmeanstd([1 2 3])  =>  [-1 0 1]
     end
-    context("extrema") do
+    shouldtestcontext("extrema") do
         @fact (@p maximum [1 2 3; 4 5 0] (x->x[2]))  =>  [2 5]'
         @fact (@p minimum [1 2 3; 4 5 0] (x->x[2]))  =>  [3 0]'
     end
-    context("valuemap") do
+    shouldtestcontext("valuemap") do
         @fact valuemap([0 1 2 3], [10 20 30])  =>  [0. 10. 20. 30.]
     end
-    context("clamp") do
+    shouldtestcontext("clamp") do
         @fact clamp(1,1,1)  =>  1
         @fact clamp(0,1,2)  =>  1
         @fact clamp(2,1,2)  =>  2
@@ -231,11 +241,11 @@ shouldtest("numerical") do
         @fact clamp([0 1 11; -5 3 20], rand(10,15))  =>  [1 1 10; 1 3 15]
         @fact clamp([0 1 11; -5 3 20; -4 3 5], rand(10,15,4))  =>  [1 1 10; 1 3 15; 1 3 4]
     end
-    context("rand") do
+    shouldtestcontext("rand") do
         @fact size(randsiz(siz(rand(2,3)))) => (2,3)
         @fact eltype(randsiz([2 3]', Float32)) => Float32
     end
-    context("plus") do
+    shouldtestcontext("plus") do
         @fact (@p plus zeros(2,3) ones(2,1))  =>  ones(2,3)
         @fact (@p minus zeros(2,3) ones(2,1))  =>  -ones(2,3)
         @fact (@p times ones(2,3) zeros(2,1))  =>  zeros(2,3)

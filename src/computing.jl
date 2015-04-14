@@ -19,7 +19,11 @@ end
 fasthash{T<:Number}(a::Array{T}) = eltype(a)!=Uint8 ? sha256(reinterpret(Uint8, vec(a))) : sha256(a)
 
 fasthash(a::Number) = fasthash(Any[[a], "__julianumber"])
-fasthash(a::Char) = fasthash(Any[string(a), "__juliachar"])
+if VERSION.minor == 3
+    fasthash(a::Char) = fasthash(Any[utf8(string(a)), "__juliachar"])
+else
+    fasthash(a::Char) = fasthash(Any[string(a), "__juliachar"])
+end
 fasthash(a::ASCIIString) = sha256(a)
 fasthash(a::Symbol) = fasthash(Any[string(a),"__juliasymbol"])
 fasthash(a::Tuple) = fasthash(Any[a..., "__juliatuple"])
@@ -27,7 +31,7 @@ fasthash(f::Function) = fasthash(Any[string(f), "__juliafunction"])
 fasthash(a::UnitRange) = fasthash(collect(a))
 function fasthash(a)
     d = @compat Dict{Any,Any}(:typename__ => string(typeof(a)))
-    for name in names(a)
+    for name in fieldnames(a)
         d[name] = a.(name)
     end
     fasthash(d)

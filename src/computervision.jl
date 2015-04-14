@@ -139,7 +139,7 @@ function resizeminmax(a, mins, maxs)
     else
         manewsiz = s
     end
-    newsiz = int(FunctionalData.clamp((minewsiz + manewsiz) / 2, mins, maxs))
+    newsiz = round(Int,FunctionalData.clamp((minewsiz + manewsiz) / 2, mins, maxs))
     #@show size(a) newsiz
     resize(a, newsiz)
 end
@@ -361,30 +361,30 @@ end
 
 bwlabel(img, args...) = (a = Base.copy(img); bwlabel!(a, args...); a)
 bwlabel!(img) = bwlabel!(img, 1)
-function bwlabel!(img,startlabel)
-  seeds = Any[]
-  labelind = int(startlabel)-1
-  for o = 1:size(img,3), n = 1:size(img,2), m = 1:size(img,1)
-    if img[m,n,o]==0
-      push!(seeds,[m,n,o])
-      labelind += 1
-      #@show seeds
-      while length(seeds)>0
-        sm,sn,so = pop!(seeds)
-        if img[sm,sn,so] == 0
-          img[sm,sn,so] = labelind
-          for oo = -1:1, on = -1:1, om = -1:1
-            m2 = clamp(sm+om, 1, size(img,1))
-            n2 = clamp(sn+on, 1, size(img,2))
-            o2 = clamp(so+oo, 1, size(img,3))
-            if img[m2,n2,o2] == 0
-              push!(seeds,[m2,n2,o2])
+function bwlabel!(img, startlabel)
+    seeds = Any[]
+    labelind = round(Int, startlabel)-1
+    for o = 1:size(img,3), n = 1:size(img,2), m = 1:size(img,1)
+        if img[m,n,o]==0
+            push!(seeds,[m,n,o])
+            labelind += 1
+            #@show seeds
+            while length(seeds)>0
+                sm,sn,so = pop!(seeds)
+                if img[sm,sn,so] == 0
+                    img[sm,sn,so] = labelind
+                    for oo = -1:1, on = -1:1, om = -1:1
+                        m2 = clamp(sm+om, 1, size(img,1))
+                        n2 = clamp(sn+on, 1, size(img,2))
+                        o2 = clamp(so+oo, 1, size(img,3))
+                        if img[m2,n2,o2] == 0
+                            push!(seeds,[m2,n2,o2])
+                        end
+                    end
+                end
             end
-          end
         end
-      end
     end
-  end
 end
 
 
@@ -556,7 +556,7 @@ end
 
 function blocks{T1,T2}(pos::Array{T1,2}, a::Array{T2,2}; blocksize = 32,
     scale = 1,
-    grid = scale .* centeredmeshgrid(repeat(blocksize, ndims(a))...),
+    grid = round(Int, scale .* centeredmeshgrid(repeat(blocksize, ndims(a))...)),
     borderstyle = :staysinside, precompute = false)
     r = similar(a, blocksize^sizem(pos), len(pos))
     assert(sizem(pos) == ndims(a))
@@ -590,62 +590,49 @@ function blockssample_internal!{T}(r, pos::Array{Int,2}, a::Array{T,2}, inds::Ar
 end
 
 function rle(a)
-  r = Dict()
-  r["size"] = size(a)
-  d = zeros(eltype(a),2*length(a))
- 
-  value = a[1]
-  counter = 0
-  dcounter = 1
- 
-  for i = 1:length(a)
-    if a[i]!=value 
-      d[dcounter] = value
-      d[dcounter+1] = counter
- 
-      value = a[i]
-      counter = 1
- 
-      dcounter = dcounter + 2
-    else
-      counter = counter + 1
+    r = Dict()
+    r[:size] = size(a)
+    counters = zeros(Int, length(a))
+    data = zeros(eltype(a), length(a))
+
+    value = a[1]
+    counter = 0
+    dcounter = 1
+
+    for i = 1:length(a)
+        if a[i]!=value 
+            data[dcounter] = value
+            counters[dcounter] = counter
+
+            value = a[i]
+            counter = 1
+            dcounter += 1
+        else
+            counter += 1
+        end
     end
-  end
-  d[dcounter] = value
-  d[dcounter+1] = counter
- 
-  r["data"] = d[1:dcounter+1]
-  r
+    data[dcounter] = value
+    counters[dcounter] = counter
+
+    r[:counters] = counters[1:dcounter]
+    r[:data] = data[1:dcounter]
+    r
 end
 
 function unrle(a::Dict)
-  r = zeros(eltype(a["data"]),a["size"])
-  d = a["data"]
-    
-  dcounter = 1
-  value    = d[dcounter]
-  C        = cumsum(int(d[2:2:end]))
-  cInd     = 1
-  c        = C[cInd]
-    
-  for i = 1:length(r)-int(d[end])
-    r[i] = value
-    if i==c
-      dcounter = dcounter + 2
-      value = d[dcounter]
-      cInd = cInd + 1
-      c = C[cInd]
-    end
-  end
-  r[length(r)-int(d[end])+1:end] = value
-  r
-end
+    data = a[:data]
+    counters = a[:counters]
+    r = zeros(eltype(data), a[:size])
 
-for t = [Int16, Int32, Int64, Float32, Float64]
-  for s1 = 1:10, s2 = 1:10
-    data = rand(t, s1, s2)
-    @test_equal unrle(rle(data)) data
-  end
+    rind = 1
+    for ind = 1:length(counters)
+        value = data[ind]
+        for i = 1:counters[ind]
+            r[rind] = value
+            rind += 1
+        end
+    end
+    r
 end
 
 stridedblocksub{T}(a::Array{T,2}, blocksize::Number, stride = blocksize; kargs...) = stridedblocksub(a, blocksize*ones(2,1), stride; kargs...)
