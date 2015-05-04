@@ -83,20 +83,22 @@ interp3with01coords(a,m,n,o) = interp3(a, 1+(size(a,1)-1)*m, 1+(size(a,2)-1)*n, 
 #####################################################
 ##   resize
 
-resize(a, factor::Int) = resize(a, round(factor*siz(a)), nearest = true)
-resize(a, factor::Number) = resize(a, round(factor*siz(a)))
-function resize{T<:Real}(a::Array{T}, s::Union(AbstractArray); nearest = false)
+resize(a, factor::Int; kargs...) = resize(a, round(factor*siz(a)); kargs...)
+resize(a, factor::Number; kargs...) = resize(a, round(factor*siz(a)); kargs...)
+
+# method: :nearest or :interp
+function resize{T<:Real}(a::Array{T}, s::AbstractArray; method = :interp)
     if size(a) == tuple(s...)
         return Base.copy(a)
     end
-    r = Array(nearest ? eltype(a) : Float32, s...)
+    r = Array(method == :nearest ? eltype(a) : Float32, s...)
     mi = linspace(1., size(a,1), size(r,1))
     ni = linspace(1., size(a,2), size(r,2))
     oi = linspace(1., size(a,3), size(r,3))
-    if nearest
-        mi = int(mi)
-        ni = int(ni)
-        oi = int(oi)
+    if method == :nearest
+        mi = asint(mi)
+        ni = asint(ni)
+        oi = asint(oi)
         resize_kernel_nearest(r, a, mi, ni, oi)
     else
         resize_kernel_interp3(r, a, mi, ni, oi) 
@@ -119,7 +121,7 @@ end
 ##   resizeminmax
 
 
-function resizeminmax(a, mins, maxs)
+function resizeminmax(a, mins, maxs; kargs...)
 
     assert(ndims(a)==length(mins))
     assert(ndims(a)==length(maxs))
@@ -141,7 +143,7 @@ function resizeminmax(a, mins, maxs)
     end
     newsiz = round(Int,FunctionalData.clamp((minewsiz + manewsiz) / 2, mins, maxs))
     #@show size(a) newsiz
-    resize(a, newsiz)
+    resize(a, newsiz; kargs...)
 end
 
 
@@ -492,9 +494,9 @@ function monoslic(img::Array{Float32}, spacing::Float32)
     mi2s = Array(Int,3)
     println("B loop")
     lookup = signs
-    mis = int([1:size(B,1)]./spacing.+0.5f0)
-    nis = int([1:size(B,2)]./spacing.+0.5f0)
-    ois = int([1:size(B,3)]./spacing.+0.5f0)
+    mis = asint([1:size(B,1)]./spacing.+0.5f0)
+    nis = asint([1:size(B,2)]./spacing.+0.5f0)
+    ois = asint([1:size(B,3)]./spacing.+0.5f0)
     clampedmis = [[clamp(mi-1,1,csm), clamp(mi,1,csm), clamp(mi+1,1,csm)] for mi in mis]
     clampednis = [[clamp(ni-1,1,csn), clamp(ni,1,csn), clamp(ni+1,1,csn)] for ni in nis]
     clampedois = [[clamp(oi-1,1,cso), clamp(oi,1,cso), clamp(oi+1,1,cso)] for oi in ois]
@@ -505,9 +507,9 @@ function monoslic(img::Array{Float32}, spacing::Float32)
     end
     bwlabel!(sv, maximum(sv)+1)
     uind = unique(sv)
-    labels = zeros(1,int(maximum(uind)))
+    labels = zeros(1,asint(maximum(uind)))
     labels[uind] = randperm(1:length(uind))
-    int(labels[sv])
+    asint(labels[sv])
 end
 
 border{T}(a::Array{T,2}) = @p border cat(3,a,a,a) | snd

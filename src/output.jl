@@ -17,4 +17,4 @@ end
 
 import Base.log                                              
 log(a::Union(String,ASCIIString); kargs...) = log(STDOUT, a; kargs...)
-log(io::IO, a::Union(String, ASCIIString); indent = 0) = println(io, strftime("%Y-%m-%d %T %z %Z", time()), "  |  ", repeat("  ", indent), a)
+log(io::IO, a::Union(String, ASCIIString); indent = 0) = println(io, Libc.strftime("%Y-%m-%d %T %z %Z", time()), "  |  ", repeat("  ", indent), a)

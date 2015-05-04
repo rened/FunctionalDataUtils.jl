@@ -1,4 +1,4 @@
-export exitwithteststatus
+export exitwithteststatus, asfloat32, asfloat64, asint
 
 function exitwithteststatus()
     s = FactCheck.getstats()
@@ -11,3 +11,12 @@ function exitwithteststatus()
     exit(s["nNonSuccessful"])
 end
 
+if VERSION.minor > 3
+    asint(a) = round(Int, a)
+    asfloat32(a) = map(Float32, a)
+    asfloat64(a) = map(Float64, a)
+else
+    asint = Base.int
+    asfloat32 = Base.float32
+    asfloat64 = Base.float64
+end
