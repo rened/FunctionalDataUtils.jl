@@ -60,18 +60,18 @@ end
 fasthash(f::Function, args, version) = fasthash(Any[string(f), args..., version])
 
 
-function cache(f,args...; version = "0 none set")
+function cache(f,args...; version = "0 none set", kargs...)
     try 
         mkdir("zzz")
     catch
     end
-    h = fasthash(f, args, version)
+    h = fasthash(f, args, version, kargs)
     filename = "zzz/$(string(f))$h.jls.zzz"
     if existsfile(filename)
         @timedone "reloading $(string(f))" open(deserialize, filename)
     else
         @timedone "computing $(string(f))" begin
-            r = f(args...)
+            r = f(args...; kargs...)
             open(s->serialize(s,r),filename,"w")
             r
         end
