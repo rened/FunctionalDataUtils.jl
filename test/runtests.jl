@@ -33,6 +33,8 @@ shouldtest("computing") do
         data = Any[1,1., 'a', "a", rand(10,200), zeros(1000,10000), @compat Dict("a" => 1, 2 => "b")]
         r = [fasthash(x) for x in data]
         @fact all(r .!= nothing) => true   # just to avoid showing "0 facts verified". we did survive the above, after all.
+        @fact fasthash(1:2) => "48adce367d9daa9d76033a4693b20d7fab23d357bf97e49a036f2dd32b1afff4"
+        @fact fasthash(1:3:10) => "dc29cadf1701b9023b1170a8101b40928770dbbd967e2740afa4986499522ca3"
     end
 end
 
