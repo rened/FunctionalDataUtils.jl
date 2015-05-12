@@ -1,4 +1,4 @@
-export jetcolormap, asimagesc, blocksvisu, pad
+export jetcolormap, asimagesc, blocksvisu, pad, image2array
 
 function jetcolormap(n)
     step(m, i) = i>=m ? 1.0 : 0.0
@@ -55,3 +55,4 @@ function pad(a, siz, value = 0)
     r
 end
 
+image2array(img) = @p map Any[:r,:g,:b] (i->map(y->y.(i), img.data)) | stack
