@@ -1,4 +1,4 @@
-# FunctionalDataUtils
+# FunctionalDataUtils &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [![Build Status](https://travis-ci.org/rened/FunctionalDataUtils.jl.png)](https://travis-ci.org/rened/FunctionalDataUtils.jl) [![FunctionalDataUtils](http://pkg.julialang.org/badges/FunctionalDataUtils_release.svg)](http://pkg.julialang.org/?pkg=FunctionalDataUtils&ver=release) [![FunctionalDataUtils](http://pkg.julialang.org/badges/FunctionalDataUtils_nightly.svg)](http://pkg.julialang.org/?pkg=FunctionalDataUtils&ver=nightly)
 
 [![Build Status](https://travis-ci.org/rened/FunctionalDataUtils.jl.svg?branch=master)](https://travis-ci.org/rened/FunctionalDataUtils.jl)
 
