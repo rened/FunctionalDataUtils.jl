@@ -1,4 +1,4 @@
-# FunctionalDataUtils &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [![Build Status](https://travis-ci.org/rened/FunctionalDataUtils.jl.png)](https://travis-ci.org/rened/FunctionalDataUtils.jl) [![FunctionalDataUtils](http://pkg.julialang.org/badges/FunctionalDataUtils_release.svg)](http://pkg.julialang.org/?pkg=FunctionalDataUtils&ver=release) [![FunctionalDataUtils](http://pkg.julialang.org/badges/FunctionalDataUtils_nightly.svg)](http://pkg.julialang.org/?pkg=FunctionalDataUtils&ver=nightly)
+# FunctionalDataUtils [![Build Status](https://travis-ci.org/rened/FunctionalDataUtils.jl.png)](https://travis-ci.org/rened/FunctionalDataUtils.jl) [![FunctionalDataUtils](http://pkg.julialang.org/badges/FunctionalDataUtils_release.svg)](http://pkg.julialang.org/?pkg=FunctionalDataUtils&ver=release) [![FunctionalDataUtils](http://pkg.julialang.org/badges/FunctionalDataUtils_nightly.svg)](http://pkg.julialang.org/?pkg=FunctionalDataUtils&ver=nightly)
 
 Utility functions based on [FunctionData.jl](http://github.com/rened/FunctionalData.jl), mostly from the area of computer vision and machine learning.
 
