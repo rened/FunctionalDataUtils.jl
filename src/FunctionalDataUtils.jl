@@ -15,5 +15,6 @@ include("numerical.jl")
 include("output.jl")
 include("utils.jl")
 include("system.jl")
+include("sampler.jl")
 
 end # module

@@ -1,6 +1,5 @@
 export @timedone, fasthash, cache, dictcache
 export loadedmodules, reloadmodules
-export unique
 
 macro timedone(a, ex)
     quote

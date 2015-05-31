@@ -178,6 +178,19 @@ shouldtest("computervision") do
         result3d == shouldbe3d
         @fact sum(result3d-shouldbe3d)  =>  38
     end
+
+    shouldtestcontext("Sampler") do
+        image = rand(200,100)
+        sampler = Sampler(image, 32)
+        coords = asint(50 + 50*randn(2,100))
+        if VERSION.minor >= 4
+            @fact size(@p map coords sampler) => (32,32,100)
+        else
+            @fact size(@p map coords x->call(sampler,x)) => (32,32,100)
+        end
+        out = zeros(1024,1)
+        @fact size(sample!(out, [50,50], sampler)) => (1024,1)
+    end
 end
 
 shouldtest("graphics") do

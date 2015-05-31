@@ -6,7 +6,7 @@ export clamp, clamp!
 export nanfunction, nanmean, nanstd, nanmedian
 export distance
 export randbase
-export mean_, std_, var_, min_, max_
+export mean_, std_, var_, min_, max_, sum_
 
 
 #######################################
@@ -316,3 +316,4 @@ std_(a) = std(a, ndims(a))
 var_(a) = var(a, ndims(a))
 min_(a) = minimum(a, ndims(a))
 max_(a) = maximum(a, ndims(a))
+sum_(a) = sum(a, ndims(a))
