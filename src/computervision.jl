@@ -637,10 +637,10 @@ function unrle(a::Dict)
     r
 end
 
-stridedblocksub{T}(a::Array{T,2}, blocksize::Number, stride = blocksize; kargs...) = stridedblocksub(a, blocksize*ones(2,1), stride; kargs...)
+stridedblocksub{T}(a::Array{T,2}, blocksize::Number, stride = blocksize; kargs...) = stridedblocksub(a, blocksize*ones(Int,2,1), stride; kargs...)
 function stridedblocksub{T}(a::Array{T,2}, blocksiz, stride = blocksiz; keepshape = false)
     if length(stride) == 1
-        stride = stride * ones(2,1)
+        stride = asint(stride) * ones(Int,2,1)
     end
     sm, sn = size(a)
     rm = 0:blocksiz[1]-1
@@ -650,12 +650,13 @@ function stridedblocksub{T}(a::Array{T,2}, blocksiz, stride = blocksiz; keepshap
         @show size(a) blocksiz stride
         error("length(r) == 0")
     end
+    r :: Array{Tuple{UnitRange{Int64},UnitRange{Int64}},2}
     keepshape ? r : row(r)
 end
-stridedblocksub{T}(a::Array{T,3}, blocksize::Number, stride = blocksize; kargs...) = stridedblocksub(a, blocksize*ones(3,1); kargs...)
+stridedblocksub{T}(a::Array{T,3}, blocksize::Number, stride = blocksize; kargs...) = stridedblocksub(a, blocksize*ones(Int,3,1); kargs...)
 function stridedblocksub{T}(a::Array{T,3}, blocksiz, stride = blocksiz; keepshape = false)
     if length(stride) == 1
-        stride = stride * ones(3,1)
+        stride = asint(stride) * ones(Int,3,1)
     end
     sm, sn, so = size(a)
     rm = 0:blocksiz[1]-1
@@ -663,6 +664,7 @@ function stridedblocksub{T}(a::Array{T,3}, blocksiz, stride = blocksiz; keepshap
     ro = 0:blocksiz[3]-1
     r = [(m+rm,n+rn,o+ro) for m in 1:stride[1]:sm-blocksiz[1]+1, n in 1:stride[2]:sn-blocksiz[2]+1, o in 1:stride[3]:so-blocksiz[3]+1]
     assert(length(r)>0)
+    r :: Array{Tuple{UnitRange{Int64},UnitRange{Int64},UnitRange{Int64}},3}
     keepshape ? r : row(r)
 end
 

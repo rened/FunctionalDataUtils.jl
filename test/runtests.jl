@@ -190,6 +190,8 @@ shouldtest("computervision") do
         end
         out = zeros(1024,1)
         @fact size(sample!(out, [50,50], sampler)) => (1024,1)
+        sampler = Sampler(image, 32, col = true)
+        @fact size(sample([50,50], sampler)) => (1024,1)
     end
 end
 
