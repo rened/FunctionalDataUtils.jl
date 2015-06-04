@@ -125,6 +125,7 @@ end
 
 import Base.clamp
 clamp{T}(a::Array{T}, mi::Union(Array,Tuple), ma::Union(Array,Tuple)) = (r = Base.copy(a); clamp!(r, r, mi, ma); r)
+clamp!{T}(a::Array{T,2}, mi::Union(Array,Tuple), ma::Union(Array,Tuple)) = clamp!(a, a, mi, ma)
 function clamp!{T}(r::Array{T,2}, a::Array{T,2}, mi::Union(Array,Tuple), ma::Union(Array,Tuple))
     if !(size(a,1)==length(mi)==length(ma))
         error("clamp!: size(a,1)==length(mi)==length(ma) was false: $(size(a,1))==$(length(mi))==$(length(ma))")
@@ -135,6 +136,7 @@ function clamp!{T}(r::Array{T,2}, a::Array{T,2}, mi::Union(Array,Tuple), ma::Uni
     r
 end
 clamp(a::Tuple, mi::Union(AbstractArray,Tuple), ma::Union(AbstractArray,Tuple)) = (r = Base.copy(a); clamp!(r,r,mi,ma); r)
+clamp!(a, mi, ma) = clamp!(a, a, mi, ma)
 function clamp!(r, a, mi, ma)
     if !(size(a,1)==length(mi)==length(ma))
         error("clamp!: size(a,1)==length(mi)==length(ma) was false: $(size(a,1))==$(length(mi))==$(length(ma))")
