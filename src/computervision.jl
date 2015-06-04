@@ -208,6 +208,7 @@ tosize3(a) = (size(a,2)<3 ? a = cat(2,a,[1 2]') : nothing; tosize(a))
 #   r
 # end
     
+meshgrid(a::Tuple) = meshgrid(a...)
 meshgrid(a::Array) = meshgrid(size(a)...)
 meshgrid(a::Int, v::Array) = meshgrid(repeat([a], ndims(v))...)
 meshgrid(sm::Int, sn::Int) = meshgrid(1:sm, 1:sn)

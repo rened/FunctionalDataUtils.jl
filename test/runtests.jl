@@ -189,14 +189,33 @@ shouldtest("computervision") do
             @fact size(@p map coords x->call(sampler,x)) => (32,32,100)
         end
         out = zeros(1024,1)
-        @fact size(sample!(out, [50,50], sampler)) => (1024,1)
+        pos = col([50,50])
+        @fact size(sample!(out, pos, sampler)) => (1024,1)
+
         sampler = Sampler(image, 32, col = true)
-        @fact size(sample([50,50], sampler)) => (1024,1)
+        @fact size(sample(pos, sampler)) => (1024,1)
+
         sampler = Sampler(image, 32, col = true, normmeanstd = true)
-        r = sample([50,50], sampler)
-        @fact abs(mean(r))<1e-15 => true
-        @fact abs(std(r)-1)<1e-15 => true
-        end
+        r = sample(pos, sampler)
+        @fact abs(mean(r))  < 1e-15 => true
+        @fact abs(std(r)-1) < 1e-15 => true
+
+        image = [1 2 3 4 5; 10 20 30 40 50; 11 22 33 44 55]
+        sampler = Sampler(image, 3, centered = false)
+        @fact sample(col([1,2]), sampler) => [2 3 4; 20 30 40; 22 33 44]
+        sampler = Sampler(image, 3, centered = true)
+        @fact sample(col([1,2]), sampler) => [1 2 3; 10 20 30; 11 22 33]
+        @fact sample(col([1,3]), sampler) => [2 3 4; 20 30 40; 22 33 44]
+
+        image = ones(20,10)
+        sampler = Sampler(image, 3, centered = false)
+        sampler(ones(siz(image)))
+        sampler(siz(image))
+
+        sampler = Sampler(image, 3, centered = true)
+        sampler(ones(siz(image)))
+        sampler(siz(image))
+    end
 end
 
 shouldtest("graphics") do

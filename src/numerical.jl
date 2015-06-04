@@ -124,25 +124,25 @@ function valuemap(data, mapping)
 end
 
 import Base.clamp
-clamp{T}(a::Array{T}, mi::Union(Array,Tuple), ma::Union(Array,Tuple)) = (r = Base.copy(a); clamp!(r, mi, ma); r)
-function clamp!{T}(a::Array{T,2}, mi::Union(Array,Tuple), ma::Union(Array,Tuple))
+clamp{T}(a::Array{T}, mi::Union(Array,Tuple), ma::Union(Array,Tuple)) = (r = Base.copy(a); clamp!(r, r, mi, ma); r)
+function clamp!{T}(r::Array{T,2}, a::Array{T,2}, mi::Union(Array,Tuple), ma::Union(Array,Tuple))
     if !(size(a,1)==length(mi)==length(ma))
         error("clamp!: size(a,1)==length(mi)==length(ma) was false: $(size(a,1))==$(length(mi))==$(length(ma))")
     end
     for j = 1:size(a,2), i = 1:size(a,1)
-        a[i,j] = min(max(mi[i],a[i,j]), ma[i])
+        r[i,j] = min(max(mi[i],a[i,j]), ma[i])
     end
-    a
+    r
 end
-clamp(a::Tuple, mi::Union(AbstractArray,Tuple), ma::Union(AbstractArray,Tuple)) = (r = Base.copy(a); clamp!(r,mi,ma); r)
-function clamp!(a, mi, ma)
+clamp(a::Tuple, mi::Union(AbstractArray,Tuple), ma::Union(AbstractArray,Tuple)) = (r = Base.copy(a); clamp!(r,r,mi,ma); r)
+function clamp!(r, a, mi, ma)
     if !(size(a,1)==length(mi)==length(ma))
         error("clamp!: size(a,1)==length(mi)==length(ma) was false: $(size(a,1))==$(length(mi))==$(length(ma))")
     end
     for i = 1:length(a)
-        a[i] = min(max(mi[i],a[i]), ma[i])
+        r[i] = min(max(mi[i],a[i]), ma[i])
     end
-    a
+    r
 end
 clamp(a, v::Array) = clamp(a, ones(ndims(v),1), siz(v))
 
