@@ -4,9 +4,10 @@ immutable Sampler{T,N}
     buf::Array{T,N}
     ind::Array{Int}
     image::Array{T,N}
+    normmeanstd::Bool
 end
 
-function Sampler(image, bsize::Int, scale = 1.; col = false)
+function Sampler(image, bsize::Int, scale = 1.; col = false, normmeanstd = false)
     grid = centeredmeshgrid(repeat(bsize, ndims(image))...)
     ind = @p times grid scale | round Int _ | map subtoind image
     # Sampler{eltype(image),2}(zeros(eltype(image), bsize, bsize), ind)
@@ -14,7 +15,7 @@ function Sampler(image, bsize::Int, scale = 1.; col = false)
     if col
         buf = FunctionalData.col(buf)
     end
-    Sampler(buf, ind, image)
+    Sampler(buf, ind, image, normmeanstd)
 end
 
 sample(pos, a::Sampler) = sample!(a.buf, pos, a::Sampler)
@@ -31,6 +32,7 @@ function sample!(buf, pos, a::Sampler)
             buf[i] = a.image[c+a.ind[i]]
         end
     end
+    a.normmeanstd && normmeanstd!(buf)
     buf
 end
 

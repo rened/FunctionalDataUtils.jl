@@ -179,7 +179,7 @@ shouldtest("computervision") do
         @fact sum(result3d-shouldbe3d)  =>  38
     end
 
-    shouldtestcontext("Sampler") do
+    shouldtestcontext("sampler") do
         image = rand(200,100)
         sampler = Sampler(image, 32)
         coords = asint(50 + 50*randn(2,100))
@@ -192,7 +192,11 @@ shouldtest("computervision") do
         @fact size(sample!(out, [50,50], sampler)) => (1024,1)
         sampler = Sampler(image, 32, col = true)
         @fact size(sample([50,50], sampler)) => (1024,1)
-    end
+        sampler = Sampler(image, 32, col = true, normmeanstd = true)
+        r = sample([50,50], sampler)
+        @fact abs(mean(r))<1e-15 => true
+        @fact abs(std(r)-1)<1e-15 => true
+        end
 end
 
 shouldtest("graphics") do
