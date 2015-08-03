@@ -1,16 +1,16 @@
-export Sampler, sample, sample!, call
+export makeSampler, Sampler, sample, sample!, call
 
-immutable Sampler{T,N}
-    image::Array{T,N}
+type Sampler
+    image::Array{Float32,2}
     ind::Array{Int,1}
     mi::Array{Int,2}
     ma::Array{Int,2}
     clampedpos::Array{Int,2}
-    buf::Array{T,N}
+    buf::Array{Float32,2}
     normmeanstd::Bool
 end
 
-function Sampler(image, bsize::Int, scale = 1.; centered::Bool = true, col::Bool = false, normmeanstd::Bool = false)
+function makeSampler(image, bsize::Int, scale = 1.; centered::Bool = true, col::Bool = false, normmeanstd::Bool = false)
     patchsize = tuple(repeat(bsize, ndims(image))...)
     if centered
         grid = @p centeredmeshgrid patchsize | times scale | plus 1 |  asint
@@ -30,7 +30,9 @@ function Sampler(image, bsize::Int, scale = 1.; centered::Bool = true, col::Bool
 end
 
 call(a::Sampler, pos) = sample(pos, a)
+sample(a::Sampler,b::Sampler) = error("Only one of the params can be a sampler.")
 sample(pos, a::Sampler) = sample!(a.buf, pos, a::Sampler)
+sample(a::Sampler, pos) = sample!(a.buf, pos, a::Sampler)
 
 function sample!(buf, pos::Array{Int,2}, a::Sampler)
     c = @p clamp! a.clampedpos pos a.mi a.ma | subtoind a.image

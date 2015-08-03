@@ -166,7 +166,7 @@ function overlaygradient(img, sp, sp2 = sp*0, sp3 = sp*0)
             g[m,n] |= a[m,n+1] != a[m,n]
         end
         for n = 1:size(a,2), m = 1:size(a,1)-1
-            g[m,n] |= a[m+1,n] !=a [m,n]
+            g[m,n] |= a[m+1,n] !=a[m,n]
         end
         g
     end

@@ -1,6 +1,7 @@
 export normsum, norm01, normeuclid, normmean, normmeanstd
 export normsum!, norm01!, normeuclid!, normmean!, normmeanstd!
 export normunique, valuemap
+export normmean_
 export pcawhitening, zcawhitening, WhiteningBase
 export clamp, clamp!
 export nanfunction, nanmean, nanstd, nanmedian
@@ -319,3 +320,5 @@ var_(a) = var(a, ndims(a))
 min_(a) = minimum(a, ndims(a))
 max_(a) = maximum(a, ndims(a))
 sum_(a) = sum(a, ndims(a))
+
+normmean_(a) = a .- mean_(a)
