@@ -124,7 +124,7 @@ function valuemap(data, mapping)
     r
 end
 
-import Base.clamp
+import Base.clamp, Base.clamp!
 clamp{T}(a::Array{T}, mi::Union(Array,Tuple), ma::Union(Array,Tuple)) = (r = Base.copy(a); clamp!(r, r, mi, ma); r)
 clamp!{T}(a::Array{T,2}, mi::Union(Array,Tuple), ma::Union(Array,Tuple)) = clamp!(a, a, mi, ma)
 function clamp!{T}(r::Array{T,2}, a::Array{T,2}, mi::Union(Array,Tuple), ma::Union(Array,Tuple))
