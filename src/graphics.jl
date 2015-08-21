@@ -29,7 +29,13 @@ function blocksvisu(a)
     n = len(a)
     typ = eltype(fst(a))
     padsize(a) = ceil(Int,a/4)
-    a = @p map a reshape | unstack
+    try
+        a = @p map a reshape | unstack
+    end
+    assert(all(x->size(x) == size(fst(a)),a))
+    if ndims(fst(a))==3
+        return @p map (1:3) (i->blocksvisu(@p map a at i)) | stack
+    end
     z = @p zeros typ padsize(size(fst(a),1)) size(fst(a),2)
     a = @p partsoflen a ceil(Int,sqrt(n)) | map riffle z | map col | map flatten
     z = @p zeros typ size(fst(a),1) padsize(size(fst(a),2))
