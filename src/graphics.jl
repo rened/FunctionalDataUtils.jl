@@ -25,7 +25,7 @@ function asimagesc(a, norm = true)
     r
 end
 
-function blocksvisu(a)
+function blocksvisu(a, padding = zeros)
     n = len(a)
     typ = eltype(fst(a))
     padsize(a) = ceil(Int,a/4)
@@ -36,9 +36,9 @@ function blocksvisu(a)
     if ndims(fst(a))==3
         return @p map (1:3) (i->blocksvisu(@p map a at i)) | stack
     end
-    z = @p zeros typ padsize(size(fst(a),1)) size(fst(a),2)
+    z = @p padding typ padsize(size(fst(a),1)) size(fst(a),2)
     a = @p partsoflen a ceil(Int,sqrt(n)) | map riffle z | map col | map flatten
-    z = @p zeros typ size(fst(a),1) padsize(size(fst(a),2))
+    z = @p padding typ size(fst(a),1) padsize(size(fst(a),2))
     a[end] = @p pad a[end] siz(fst(a))
     @p riffle a z | row | flatten
 end
