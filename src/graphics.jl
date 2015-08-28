@@ -1,4 +1,4 @@
-export jetcolormap, asimagesc, blocksvisu, pad, image2array
+export jetcolormap, asimagesc, blocksvisu, pad, image2array, poly2mask
 
 function jetcolormap(n)
     step(m, i) = i>=m ? 1.0 : 0.0
@@ -25,21 +25,22 @@ function asimagesc(a, norm = true)
     r
 end
 
-function blocksvisu(a, padding = zeros)
+function blocksvisu(a, padding = 0)
     n = len(a)
     typ = eltype(fst(a))
+    paddingf(a...) = ones(typ,a...)*padding
     padsize(a) = ceil(Int,a/4)
     try
         a = @p map a reshape | unstack
     end
     assert(all(x->size(x) == size(fst(a)),a))
     if ndims(fst(a))==3
-        return @p map (1:3) (i->blocksvisu(@p map a at i)) | stack
+        return @p map (1:3) (i->@p map a at i | blocksvisu padding) | stack
     end
-    z = @p padding typ padsize(size(fst(a),1)) size(fst(a),2)
+    z = @p paddingf padsize(size(fst(a),1)) size(fst(a),2)
     a = @p partsoflen a ceil(Int,sqrt(n)) | map riffle z | map col | map flatten
-    z = @p padding typ size(fst(a),1) padsize(size(fst(a),2))
-    a[end] = @p pad a[end] siz(fst(a))
+    z = @p paddingf size(fst(a),1) padsize(size(fst(a),2))
+    a[end] = @p pad a[end] siz(fst(a)) padding
     @p riffle a z | row | flatten
 end
 
