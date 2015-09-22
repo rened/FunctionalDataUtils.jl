@@ -1,5 +1,5 @@
 println("Starting runtests.jl $(join(ARGS, " ")) ...")
-using FunctionalDataUtils, FactCheck, Compat
+using FunctionalDataUtils, FactCheck
 FactCheck.setstyle(:compact)
 
 shouldtest(f, a) = length(ARGS) == 0 || in(a, ARGS) ? facts(f, a) : nothing
@@ -30,7 +30,7 @@ shouldtest("computing") do
         @fact fasthash(UInt64[1]) --> "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
         @fact fasthash(Int64[1]) --> "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
         @fact fasthash(Any[1,"test"]) --> "b59f20a7e3513ef702971ec5cbd288f19d760df46d49d5d27edb82fe73fc257b"
-        data = Any[1,1., 'a', "a", rand(10,200), zeros(1000,10000), @compat Dict("a" => 1, 2 => "b")]
+        data = Any[1,1., 'a', "a", rand(10,200), zeros(1000,10000), Dict("a" => 1, 2 => "b")]
         r = [fasthash(x) for x in data]
         @fact all(r .!= nothing) --> true   # just to avoid showing "0 facts verified". we did survive the above, after all.
         @fact fasthash(1:2) --> "48adce367d9daa9d76033a4693b20d7fab23d357bf97e49a036f2dd32b1afff4"

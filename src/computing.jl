@@ -31,7 +31,7 @@ fasthash(a::UnitRange) = fasthash(Any[a.start, a.stop, "__juliaunitrange"])
 fasthash(a::Range) = fasthash(Any[a.start, a.step, a.stop, "__juliarange"])
 fasthash(a::Bool) = fasthash("$(a)_juliabool")
 function fasthash(a)
-    d = @compat Dict{Any,Any}(:typename__ => string(typeof(a)))
+    d = Dict{Any,Any}(:typename__ => string(typeof(a)))
     for name in fieldnames(a)
         d[name] = a.(name)
     end

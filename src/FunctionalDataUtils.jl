@@ -4,7 +4,7 @@ module FunctionalDataUtils
 using Reexport
 @reexport using FunctionalData
 drop = FunctionalData.drop
-using Compat, SHA
+using SHA
 import FactCheck
 
 include("computing.jl")
