@@ -15,7 +15,7 @@ macro timedone(a, ex)
 end
 
 
-fasthash{T<:Number}(a::Array{T}) = eltype(a)!=Uint8 ? sha256(reinterpret(Uint8, vec(a))) : sha256(a)
+fasthash{T<:Number}(a::Array{T}) = eltype(a)!=UInt8 ? sha256(reinterpret(UInt8, vec(a))) : sha256(a)
 
 fasthash(a::Number) = fasthash(Any[[a], "__julianumber"])
 if VERSION.minor == 3

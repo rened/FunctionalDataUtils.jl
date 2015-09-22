@@ -23,7 +23,7 @@ end
 function typedictionaries()
 
     j2m = Dict(Int => "int64", Int8 => "int8", Int16 => "int16", Int32 => "int32", Int64 => "int64", 
-        Uint => "uint64", Uint8 => "uint8", Uint16 => "uint16", Uint32 => "uint32", Uint64 => "uint64", 
+        UInt => "uint64", UInt8 => "uint8", UInt16 => "uint16", UInt32 => "uint32", UInt64 => "uint64", 
         Float32 => "single", Float64 => "double", ASCIIString => "char*1", Bool => "logical", Any => "cell", 
         Dict => "struct")
 
@@ -62,7 +62,7 @@ function fmwrite_internal(stream, a, j2m)
     ###################
     #  write size
 
-    s = zeros(Uint64, 1, 10)
+    s = zeros(UInt64, 1, 10)
 
     if typeof(a)==ASCIIString
         s[1:2] = [1 length(a)]
@@ -122,12 +122,12 @@ function fmread_internal(stream, m2j)
     ###################
     #  read type
 
-    t = m2j[ascii(read(stream, Uint8, 7))];
+    t = m2j[ascii(read(stream, UInt8, 7))];
 
     ###################
     #  read size
 
-    s = read(stream, Uint64, 1, 10)
+    s = read(stream, UInt64, 1, 10)
     s = s[s.!=0]
     println("\n---\ngot here: s ",s," sum(s): ",prod(s),"\n")
     println("type is: $t")
@@ -150,7 +150,7 @@ function fmread_internal(stream, m2j)
         end
 
     elseif t==ASCIIString
-        r = ascii(read(stream, Uint8, prod(s)))
+        r = ascii(read(stream, UInt8, prod(s)))
     else
         r = Array(t, s...)
         read!(stream, r)
