@@ -1,5 +1,6 @@
 export normsum, norm01, normeuclid, normmean, normmeanstd
 export normsum!, norm01!, normeuclid!, normmean!, normmeanstd!
+export normquantile
 export normunique, valuemap
 export normmean_
 export pcawhitening, zcawhitening, WhiteningBase
@@ -80,6 +81,11 @@ function normmeanstd!(r)
         end
     end
     r
+end
+
+function normquantile(a, q = [0.1, 0.9])
+    qs = quantile(vec(a), q) 
+    (a-qs[1])/(qs[2]-qs[1])*(q[2]-q[1])+q[1]
 end
 
 function normunique(a)  # FIXME

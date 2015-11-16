@@ -263,6 +263,8 @@ shouldtest("numerical") do
         @fact norm01([1 2 3])  -->  [0 1/2 1]
         @fact normeuclid([1 1])  -->  1./[sqrt(2) sqrt(2)]
         @fact normmeanstd([1 2 3])  -->  [-1 0 1]
+        @fact normquantile(collect(0:10))  -->  roughly(asfloat64(collect(0:10))/10)
+        @fact normquantile(collect(0:2:20))  -->  roughly(asfloat64(collect(0:10))/10)
     end
     shouldtestcontext("extrema") do
         @fact (@p maximum [1 2 3; 4 5 0] (x->x[2]))  -->  [2 5]'
