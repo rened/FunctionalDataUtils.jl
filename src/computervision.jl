@@ -7,6 +7,7 @@ export blocks, blocks!!
 export rle, unrle
 export stridedblocksub
 export inpolygon, inpointcloud
+export medfilt
 
 
 #######################################
@@ -711,5 +712,11 @@ function inpointcloud(point, cloud, n = 8)
     sum(distance(nearest + cloud2point, inpipe)) < sum(distance(nearest - cloud2point, inpipe))
 end
 
-
+function medfilt(a, b = 1)
+    sm, sn = size(a)
+    for n = b+1:sn-b-1, m = 1+b:sm-b-1
+        a[m,n] = median(a[m:m,n-b:n+b])
+    end
+    a
+end
 
