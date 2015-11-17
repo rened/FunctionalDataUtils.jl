@@ -43,21 +43,21 @@ function iimg!{T}(a::AbstractArray{T,3})
     end
 end
 
-function interp3{T}(a::Union{Array{T,2}, Array{T,3}}, m_::Float64, n_::Float64, o_::Float64)
-  if m_<1 || n_<1 || o_<1 || m_>size(a,1) || n_>size(a,2) || o_>size(a,3) 
-    # @show m_ n_ o_ size(a)
-    error("interp3: index out of bounds: [$m_, $n_, $o_], size(a) == $(size(a))")
-  end
+function interp3{T,T2<:Float32}(a::Array{T,3}, m_::T2, n_::T2, o_::T2)
+  # if m_<1 || n_<1 || o_<1 || m_>size(a,1) || n_>size(a,2) || o_>size(a,3) 
+  #   # @show m_ n_ o_ size(a)
+  #   error("interp3: index out of bounds: [$m_, $n_, $o_], size(a) == $(size(a)::Tuple{Int,Int,Int})")
+  # end
   
-  if isnan(m_) || isnan(n_) || isnan(o_)
-    # @show m_ n_ o_ size(a)
-    error("interp3: index is NaN")
-  end
+  # if isnan(m_) || isnan(n_) || isnan(o_)
+  #   # @show m_ n_ o_ size(a)
+  #   error("interp3: index is NaN")
+  # end
   
-  rem(a) = a-trunc(a)
-  wm = 1-rem(m_)
-  wn = 1-rem(n_)
-  wo = 1-rem(o_)
+  one_ = one(T2)
+  wm = one_-rem(m_, one_)::T2
+  wn = one_-rem(n_, one_)::T2
+  wo = one_-rem(o_, one_)::T2
   m = floor(Int,m_)
   M = ceil(Int,m_)
   n = floor(Int,n_)
@@ -65,8 +65,8 @@ function interp3{T}(a::Union{Array{T,2}, Array{T,3}}, m_::Float64, n_::Float64, 
   o = floor(Int,o_)
   O = ceil(Int,o_)
   
-#  @show wm wn wo m n o M N O
-#@show "got here" wm wn wo m M n N o O size(a)
+  #  @show wm wn wo m n o M N O
+  # @show "got here" wm wn wo m M n N o O size(a)
   meanm!no = wm*a[m,n,o]+(1-wm)*a[M,n,o]
   meanm!No = wm*a[m,N,o]+(1-wm)*a[M,N,o]
   meanm!nO = wm*a[m,n,O]+(1-wm)*a[M,n,O]
