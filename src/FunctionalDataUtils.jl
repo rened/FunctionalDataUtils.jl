@@ -7,7 +7,6 @@ export FDU
 
 using Reexport
 @reexport using FunctionalData
-drop = FunctionalData.drop
 using SHA
 import FactCheck
 

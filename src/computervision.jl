@@ -43,7 +43,7 @@ function iimg!{T}(a::AbstractArray{T,3})
     end
 end
 
-function interp3{T,T2<:Float32}(a::Array{T,3}, m_::T2, n_::T2, o_::T2)
+function interp3{T,NN,T2<:AbstractFloat}(a::Array{T,NN}, m_::T2, n_::T2, o_::T2)
   # if m_<1 || n_<1 || o_<1 || m_>size(a,1) || n_>size(a,2) || o_>size(a,3) 
   #   # @show m_ n_ o_ size(a)
   #   error("interp3: index out of bounds: [$m_, $n_, $o_], size(a) == $(size(a)::Tuple{Int,Int,Int})")
