@@ -32,7 +32,7 @@ function log(io::IO, a::AbstractString; indent = 0, tofile = [], toSTDOUT = true
     println(buf, Libc.strftime("%Y-%m-%d %T %z %Z", time()), "  |  ", repeat("  ", indent), a)
     str = takebuf_string(buf)
 
-    toSTDOUT && print(io, str[end] == '\n' ? str[1:end-1] : str)
+    toSTDOUT && println(io, str[end] == '\n' ? str[1:end-1] : str)
     if (tofile == [] && LOGTOFILE) || tofile == true || isa(tofile, AbstractString)
         filename = isa(tofile, AbstractString) ? tofile : LOGFILE
         open(filename, "a") do fid
