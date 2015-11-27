@@ -318,7 +318,7 @@ function distance{T1,T2}(a::AbstractArray{T1,2},b::AbstractArray{T2,2})
 end
 distance(a::Number,b::Number) = abs(a-b)
 
-randbase(basedim, origdim) = map(randn(origdim, basedim),normeuclid)'
+randbase(basedim, origdim) = randn(MersenneTwister(0), basedim, origdim)
 
 mean_(a) = mean(a, ndims(a))   
 std_(a) = std(a, ndims(a))
