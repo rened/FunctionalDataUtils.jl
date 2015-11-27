@@ -2,6 +2,14 @@ __precompile__()
 
 module FunctionalDataUtils
 
+LOGFILE = ""
+LOGTOFILE = false
+
+function __init__()
+    global LOGFILE
+    LOGFILE = joinpath(pwd(), "julia.log")
+end
+
 FDU = FunctionalDataUtils
 export FDU
 

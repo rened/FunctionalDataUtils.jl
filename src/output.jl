@@ -1,4 +1,4 @@
-export disp, showdict, log
+export disp, showdict, log, setfilelogging, setlogfile
 
 disp(x...) = println(join(map(string,x),", "))
 
@@ -15,6 +15,28 @@ function showdict(a, indent = "")
     end
 end
 
+function setfilelogging(a::Bool)
+    global LOGTOFILE
+    LOGTOFILE = a
+end
+
+function setlogfile(a::AbstractString)
+    global LOGFILE
+    LOGFILE = a
+end
+
 import Base.log                                              
 log(a::AbstractString; kargs...) = log(STDOUT, a; kargs...)
-log(io::IO, a::AbstractString; indent = 0) = println(io, Libc.strftime("%Y-%m-%d %T %z %Z", time()), "  |  ", repeat("  ", indent), a)
+function log(io::IO, a::AbstractString; indent = 0, tofile = [], toSTDOUT = true)
+    buf = IOBuffer()
+    println(buf, Libc.strftime("%Y-%m-%d %T %z %Z", time()), "  |  ", repeat("  ", indent), a)
+    str = takebuf_string(buf)
+
+    toSTDOUT && println(io, str)
+    if (tofile == [] && LOGTOFILE) || tofile == true
+        open(LOGFILE, "a") do fid
+            write(fid, str)
+        end
+    end
+    nothing
+end
