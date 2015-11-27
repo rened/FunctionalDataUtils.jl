@@ -1,4 +1,4 @@
-export disp, showdict, log, setfilelogging, setlogfile
+export disp, showdict, log, setfilelogging, setlogfile, errorstring
 
 disp(x...) = println(join(map(string,x),", "))
 
@@ -39,4 +39,10 @@ function log(io::IO, a::AbstractString; indent = 0, tofile = [], toSTDOUT = true
         end
     end
     nothing
+end
+
+function errorstring(e)
+    buf = IOBuffer()
+    showerror(buf, e, catch_backtrace())
+    takebuf_string(buf)
 end
