@@ -27,13 +27,14 @@ end
 
 import Base.log                                              
 log(a::AbstractString; kargs...) = log(STDOUT, a; kargs...)
-function log(io::IO, a::AbstractString; indent = 0, tofile = [], toSTDOUT = true, filename = LOGFILE)
+function log(io::IO, a::AbstractString; indent = 0, tofile = [], toSTDOUT = true)
     buf = IOBuffer()
     println(buf, Libc.strftime("%Y-%m-%d %T %z %Z", time()), "  |  ", repeat("  ", indent), a)
     str = takebuf_string(buf)
 
     toSTDOUT && println(io, str)
-    if (tofile == [] && LOGTOFILE) || tofile == true
+    if (tofile == [] && LOGTOFILE) || tofile == true || isa(tofile, AbstractString)
+        filename = isa(tofile, AbstractString) ? tofile : LOGFILE
         open(filename, "a") do fid
             write(fid, str)
         end
