@@ -14,7 +14,7 @@ FDU = FunctionalDataUtils
 export FDU
 
 using Reexport
-@reexport using FunctionalData
+@reexport using FunctionalData, Colors
 using SHA
 import FactCheck
 

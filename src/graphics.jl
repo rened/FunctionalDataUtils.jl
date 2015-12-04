@@ -11,7 +11,7 @@ function jetcolormap(n)
     r[1, :] = [f(3n/4, i) for i in 1:n]
     r[2, :] = [f(n/2, i) for i in 1:n]
     r[3, :] = [f(n/4, i) for i in 1:n]
-    r
+    clamp(r, 0f0, 1f0)
 end
 
 function asimagesc(a, norm = true)

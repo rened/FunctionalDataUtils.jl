@@ -225,7 +225,13 @@ shouldtest("graphics") do
         @fact all(r .<= 1) --> true
     end
 
-    shouldtestcontext("asimagesc") do
+    shouldtestcontext("jetcolors") do
+        @fact jetcolors(1:3) --> roughly([0.0 0.5198019801980198 0.5396039603960396; 0.0 1.0 0.0; 0.5396039603960396 0.4801980198019802 0.0])
+        @fact jetcolors(1:3,2,4) --> roughly([0.0 0.0 0.5198019801980198; 0.0 0.0 1.0; 0.5396039603960396 0.5396039603960396 0.4801980198019802])
+        @fact jetcolorants(1:3) --> Any[RGB{Float64}(0.0,0.0,0.5396039603960396),RGB{Float64}(0.5198019801980198,1.0,0.4801980198019802),RGB{Float64}(0.5396039603960396,0.0,0.0)]
+    end
+
+     shouldtestcontext("asimagesc") do
         img = [1 2 3 4 5 6 7 8 9]
         r = asimagesc(img)
         @fact size(r,3) --> 3
