@@ -1,4 +1,4 @@
-export disp, showdict, log, setfilelogging, setlogfile, errorstring
+export disp, showdict, log, @log, setfilelogging, setlogfile, errorstring
 
 disp(x...) = println(join(map(string,x),", "))
 
@@ -26,20 +26,26 @@ function setlogfile(a::AbstractString)
 end
 
 import Base.log                                              
-log(a::AbstractString; kargs...) = log(STDOUT, a; kargs...)
-function log(io::IO, a::AbstractString; indent = 0, tofile = [], toSTDOUT = true)
+log(a::AbstractString, args...; kargs...) = log(STDOUT, a, args...; kargs...)
+function log(io::IO, a::AbstractString, args...; indent = 0, tofile = [], toSTDOUT = true)
     buf = IOBuffer()
-    println(buf, Libc.strftime("%Y-%m-%d %T %z %Z", time()), "  |  ", repeat("  ", indent), a)
+    println(buf, Libc.strftime("%Y-%m-%d %T %z %Z", time()), "  |  ", repeat("  ", indent), join(a, args...)," ")
     str = takebuf_string(buf)
 
     toSTDOUT && println(io, str[end] == '\n' ? str[1:end-1] : str)
     if (tofile == [] && LOGTOFILE) || tofile == true || isa(tofile, AbstractString)
         filename = isa(tofile, AbstractString) ? tofile : LOGFILE
-        open(filename, "a") do fid
+        @spawnat 1 open(filename, "a") do fid
             write(fid, str)
         end
     end
     nothing
+end
+
+macro log(a...)
+    quote
+        log($(a...))
+    end
 end
 
 function errorstring(e)

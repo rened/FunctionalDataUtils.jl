@@ -26,6 +26,7 @@ function asimagesc(a, norm = true)
 end
 
 function blocksvisu(a, padding = 0)
+    a = unstack(a)
     n = len(a)
     typ = eltype(fst(a))
     paddingf(a...) = ones(typ,a...)*padding
@@ -33,7 +34,7 @@ function blocksvisu(a, padding = 0)
     try
         a = @p map a reshape | unstack
     end
-    assert(all(x->size(x) == size(fst(a)),a))
+    @p mapvec a size | uniq | len | isequal 1 | assert
     if ndims(fst(a))==3
         return @p map (1:3) (i->@p map a at i | blocksvisu padding) | stack
     end
