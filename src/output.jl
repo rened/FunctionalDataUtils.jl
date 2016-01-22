@@ -29,7 +29,7 @@ import Base.log
 log(a::AbstractString, args...; kargs...) = log(STDOUT, a, args...; kargs...)
 function log(io::IO, a::AbstractString, args...; indent = 0, tofile = [], toSTDOUT = true)
     buf = IOBuffer()
-    println(buf, Libc.strftime("%Y-%m-%d %T %z %Z", time()), "  |  ", repeat("  ", indent), join(a, args...)," ")
+    println(buf, Libc.strftime("%Y-%m-%d %T %z %Z", time()), "  |  ", repeat("  ", indent), join([a, args...], " "))
     str = takebuf_string(buf)
 
     toSTDOUT && println(io, str[end] == '\n' ? str[1:end-1] : str)
