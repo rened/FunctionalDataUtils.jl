@@ -40,7 +40,7 @@ end
 
 
 function fasthash(a::Array)
-    if length(a)>100000
+    if length(a)>100000 && isa(a, DenseArray) && eltype(a)<:Number
         return fasthash(Any[a[1:911:end],sum(a)])
     else
         if eltype(a)<:Number
