@@ -85,7 +85,7 @@ end
 
 function normquantile(a, q = [0.1, 0.9])
     qs = quantile(vec(a), q) 
-    (a-qs[1])/(qs[2]-qs[1])*(q[2]-q[1])+q[1]
+    clamp((a-qs[1])/(qs[2]-qs[1])*(q[2]-q[1])+q[1], 0, 1)
 end
 
 function normunique(a)  # FIXME
