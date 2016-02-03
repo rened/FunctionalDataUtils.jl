@@ -1,4 +1,4 @@
-export jetcolormap, asimagesc, blocksvisu, pad, image2array, poly2mask
+export jetcolormap, asimagesc, blocksvisu, pad, image2array, poly2mask, embedvisu
 
 function jetcolormap(n)
     step(m, i) = i>=m ? 1.0 : 0.0
@@ -43,6 +43,22 @@ function blocksvisu(a, padding = 0)
     z = @p paddingf size(fst(a),1) padsize(size(fst(a),2))
     a[end] = @p pad a[end] siz(fst(a)) padding
     @p riffle a z | row | flatten
+end
+
+function embedvisu(a, patches, s = 2000)
+    mi = minimum(a,2)
+    ma = maximum(a,2)
+    rm = rangem(patches)
+    rn = rangen(patches)
+    dim = ndims(patches) == 3 ? 1 : 3
+    t(a) = round(Int, (a-mi)./(ma-mi) * s)
+    r = zeros(s+sizem(patches),s+sizen(patches),dim)
+    for i = 1:len(patches)
+        x = @p at a i | t
+        p = @p at patches i
+        r[x[1]+rm, x[2]+rn,:] = p
+    end
+    r
 end
 
 function pad(a, siz, value = 0)
