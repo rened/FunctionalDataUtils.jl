@@ -30,14 +30,7 @@ fasthash(f::Function) = fasthash(Any[string(f), "__juliafunction"])
 fasthash(a::UnitRange) = fasthash(Any[a.start, a.stop, "__juliaunitrange"])
 fasthash(a::Range) = fasthash(Any[a.start, a.step, a.stop, "__juliarange"])
 fasthash(a::Bool) = fasthash("$(a)_juliabool")
-function fasthash(a)
-    d = Dict{Any,Any}(:typename__ => string(typeof(a)))
-    for name in fieldnames(a)
-        d[name] = a.(name)
-    end
-    fasthash(d)
-end
-
+fasthash(a) = fasthash(repr(a))
 
 function fasthash(a::Array)
     if length(a)>100000 && isa(a, DenseArray) && eltype(a)<:Number
