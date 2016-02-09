@@ -41,16 +41,11 @@ end
 
 function fasthash(a::Array)
     if length(a)>100000 && isa(a, DenseArray) && eltype(a)<:Number
-        return fasthash(Any[a[1:911:end],sum(a)])
+        fasthash(Any[a[1:911:end],sum(a)])
     else
-        if eltype(a)<:Number
-            return fasthash(sha(a) * fasthash(string(typeof(a))) * fasthash(size(a)))
-        else
-            r = Base.map(fasthash, a)
-            return fasthash(join(r))
-        end
+        r = Base.map(fasthash, a)
+        fasthash(join(r))
     end
-    sha(a)
 end
 function fasthash(a::Dict)
     K = collect(keys(a))

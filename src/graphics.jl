@@ -58,7 +58,7 @@ function embedvisu(a, patches, s = 2000)
         p = @p at patches i
         r[x[1]+rm, x[2]+rn,:] = p
     end
-    r
+    dim == 1 ? squeeze(r,3) : r
 end
 
 function pad(a, siz, value = 0)
