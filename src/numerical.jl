@@ -155,8 +155,6 @@ function clamp!(r, a, mi, ma)
 end
 clamp(a, v::Array) = clamp(a, ones(ndims(v),1), siz(v))
 
-
-
 function nanfunction{T}(f,a::Array{T,2},dim)
   if dim == 1
     r = NaN*zeros(1,size(a,2))

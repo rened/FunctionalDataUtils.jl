@@ -9,6 +9,7 @@ export stridedblocksub
 export inpolygon, inpointcloud
 export medfilt
 export jetcolors, jetcolorants
+export gausspos
 
 
 #######################################
@@ -727,4 +728,13 @@ function jetcolors(a,mi,ma)
 end
 jetcolors(a) = jetcolors(a, minimum(a), maximum(a)+0.01)
 jetcolorants(a...) = mapvec(jetcolors(a...),x->RGB(x[1],x[2],x[3]))
+
+function gausspos(a, n, std = 2)
+    ndim = ndims(a)
+    s = siz(a)
+    s2 = s/2
+    S = s2/std
+    @p randn ndim 2*n | times S | plus s2 | reject (x->x!=clamp(x,a)) | round Int _ | take n
+end
+
 
