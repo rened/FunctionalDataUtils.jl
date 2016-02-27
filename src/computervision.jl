@@ -91,6 +91,8 @@ resize(a, factor::Number; kargs...) = resize(a, round(factor*siz(a)); kargs...)
 
 # method: :nearest or :interp
 function resize{T<:Real}(a::Array{T}, s::AbstractArray; method = :interp)
+    ndims(a) == 3 && sizeo(a) == 3 && length(s) == 2 && return map(a, x->resize(x,s; method = method))
+
     if size(a) == tuple(s...)
         return Base.copy(a)
     end

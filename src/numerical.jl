@@ -83,6 +83,7 @@ function normmeanstd!(r)
     r
 end
 
+normquantile(a, q1, q2) = normquantile(a, [q1,q2])
 function normquantile(a, q = [0.1, 0.9])
     qs = quantile(vec(a), q) 
     clamp((a-qs[1])/(qs[2]-qs[1])*(q[2]-q[1])+q[1], 0, 1)

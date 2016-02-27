@@ -1,4 +1,4 @@
-export jetcolormap, asimagesc, blocksvisu, pad, image2array, poly2mask, embedvisu
+export jetcolormap, asimage, asimagesc, blocksvisu, pad, image2array, poly2mask, embedvisu
 
 function jetcolormap(n)
     step(m, i) = i>=m ? 1.0 : 0.0
@@ -12,6 +12,22 @@ function jetcolormap(n)
     r[2, :] = [f(n/2, i) for i in 1:n]
     r[3, :] = [f(n/4, i) for i in 1:n]
     clamp(r, 0f0, 1f0)
+end
+
+isinstalled(a) = isa(Pkg.installed(a), VersionNumber)
+if isinstalled("Images")
+    import Images: grayim, colorim
+    function asimage{T}(a::Array{T,2})
+        grayim(a')
+    end
+
+    function asimage{T}(a::Array{T,3})
+        if sizem(a) == 3
+            assert(sizeo(a)!=3)
+            a = permutedims(a,[2,3,1])
+        end
+        colorim(a)
+    end
 end
 
 function asimagesc(a, norm = true)
@@ -45,14 +61,14 @@ function blocksvisu(a, padding = 0)
     @p riffle a z | row | flatten
 end
 
-function embedvisu(a, patches, s = 2000)
+function embedvisu{T<:Number,N}(a::Matrix, patches::DenseArray{T,N}, s = 2000)
     mi = minimum(a,2)
     ma = maximum(a,2)
     rm = rangem(patches)
     rn = rangen(patches)
     dim = ndims(patches) == 3 ? 1 : 3
     t(a) = round(Int, (a-mi)./(ma-mi) * s)
-    r = zeros(s+sizem(patches),s+sizen(patches),dim)
+    r = zeros(Float32, s+sizem(patches),s+sizen(patches),dim)
     for i = 1:len(patches)
         x = @p at a i | t
         p = @p at patches i
