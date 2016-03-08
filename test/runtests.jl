@@ -306,6 +306,7 @@ shouldtest("utils") do
         d = [Dict(:a => 1), Dict(:a => 1), Dict(:a => 10)]
         r = Dict(1 => 2, 10 => 1)
         @fact histdict(d, :a)  -->  r
+        @fact histdict([1,1,10])  -->  r
     end
 end
 

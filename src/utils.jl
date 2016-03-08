@@ -21,8 +21,9 @@ else
     asfloat64 = Base.float64
 end
 
-function histdict(a, field)
+histdict(a, field) = @p extract a field | histdict
+function histdict(a)
     d = Dict()
-    @p map a x->d[x[field]] = get(d,x[field],0) + 1
+    @p map a x->d[x] = get(d,x,0) + 1
     d
 end
