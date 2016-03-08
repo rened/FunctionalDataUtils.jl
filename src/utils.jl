@@ -1,4 +1,4 @@
-export exitwithteststatus, asfloat32, asfloat64, asint
+export exitwithteststatus, asfloat32, asfloat64, asint, histdict
 
 function exitwithteststatus()
     s = FactCheck.getstats()
@@ -19,4 +19,10 @@ else
     asint = Base.int
     asfloat32 = Base.float32
     asfloat64 = Base.float64
+end
+
+function histdict(a, field)
+    d = Dict()
+    @p map a x->d[x[field]] = get(d,x[field],0) + 1
+    d
 end

@@ -17,7 +17,7 @@ shouldtest("computing") do
     shouldtestcontext("fasthash") do
         @fact fasthash(1) --> "20eae029a26a15420f9ed6d7a9999e823f251b9d44adea5a504e1d8a4f7c5512"
         @fact fasthash(1.) --> "cb5415fc791f65b70b303678e3601d60ac527cc4cdd3a10d1f85b7423b270112"
-        @fact fasthash('a') --> "02bd3cf2fa502d7ed9fbd7b4c69b6699d03161d6dfde5d0868277429ad7cabb6"
+        @fact fasthash('a') --> "69361357edf889e9d083a79af81c4e1ab9ed207e94f94f81b18318b8ae3f2964"
         @fact fasthash("a") --> "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         @fact fasthash(["a"]) --> "cd372fb85148700fa88095e3492d3f9f5beb43e555e5ff26d95f5a6adc36f8e6"
         @fact fasthash([1]) --> "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
@@ -298,6 +298,14 @@ shouldtest("numerical") do
         @fact (@p minus zeros(2,3) ones(2,1))  -->  -ones(2,3)
         @fact (@p times ones(2,3) zeros(2,1))  -->  zeros(2,3)
         @fact (@p divby ones(2,3) 2*ones(2,1))  -->  0.5*ones(2,3)
+    end
+end
+
+shouldtest("utils") do
+    shouldtestcontext("histdict") do
+        d = [Dict(:a => 1), Dict(:a => 1), Dict(:a => 10)]
+        r = Dict(1 => 2, 10 => 1)
+        @fact histdict(d, :a)  -->  r
     end
 end
 
