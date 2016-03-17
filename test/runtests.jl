@@ -11,6 +11,8 @@ shouldtest("machinelearning") do
         # @test_almostequal sqrt(sum(randbase(2,10).^2, 2)) [1. 1.]'
         # @test_almostequal (@p randbase 2 10  | (.^) _ 2 |  sum _ 2) [1. 1.]'
     end
+    shouldtestcontext("randproj") do 
+    end
 end
 
 shouldtest("computing") do

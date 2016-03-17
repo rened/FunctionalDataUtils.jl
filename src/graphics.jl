@@ -1,4 +1,5 @@
 export jetcolormap, asimage, asimagesc, blocksvisu, pad, image2array, poly2mask, embedvisu
+export jetcolors, jetcolorants
 
 function jetcolormap(n)
     step(m, i) = i>=m ? 1.0 : 0.0
@@ -13,6 +14,13 @@ function jetcolormap(n)
     r[3, :] = [f(n/4, i) for i in 1:n]
     clamp(r, 0f0, 1f0)
 end
+function jetcolors(a,mi,ma)
+    j = jetcolormap(101)
+    @p collect a | minus mi | divby (ma-mi) | clamp 0. 1. | times 99.9 | plus 1 | round Int _ | part j _ 
+end
+jetcolors(a) = jetcolors(a, minimum(a), maximum(a)+0.01)
+jetcolorants(a...) = mapvec(jetcolors(a...),x->RGB(x[1],x[2],x[3]))
+
 
 isinstalled(a) = isa(Pkg.installed(a), VersionNumber)
 if isinstalled("Images")

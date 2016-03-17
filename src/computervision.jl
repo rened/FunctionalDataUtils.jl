@@ -8,7 +8,6 @@ export rle, unrle
 export stridedblocksub
 export inpolygon, inpointcloud
 export medfilt
-export jetcolors, jetcolorants
 export gausspos
 
 
@@ -723,13 +722,6 @@ function medfilt(a, b = 1)
     end
     a
 end
-
-function jetcolors(a,mi,ma)
-    j = jetcolormap(101)
-    @p collect a | minus mi | divby (ma-mi) | clamp 0. 1. | times 99.9 | plus 1 | round Int _ | part j _ 
-end
-jetcolors(a) = jetcolors(a, minimum(a), maximum(a)+0.01)
-jetcolorants(a...) = mapvec(jetcolors(a...),x->RGB(x[1],x[2],x[3]))
 
 function gausspos(a, n, std = 2)
     ndim = ndims(a)

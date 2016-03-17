@@ -7,7 +7,7 @@ export pcawhitening, zcawhitening, WhiteningBase
 export clamp, clamp!
 export nanfunction, nanmean, nanstd, nanmedian
 export distance
-export randbase
+export randbase, randproj
 export mean_, std_, var_, min_, max_, sum_
 
 
@@ -318,6 +318,7 @@ end
 distance(a::Number,b::Number) = abs(a-b)
 
 randbase(basedim, origdim) = randn(MersenneTwister(0), basedim, origdim)
+randproj(a, targetdim::Int) = randbase(targetdim, sizem(a))*a
 
 mean_(a) = mean(a, ndims(a))   
 std_(a) = std(a, ndims(a))
