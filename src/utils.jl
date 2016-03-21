@@ -1,5 +1,6 @@
 export exitwithteststatus, asfloat16, asfloat32, asfloat64, asint, histdict
 export tryasfloat32, tryasfloat64, tryasint
+export serve
 
 function exitwithteststatus()
     s = FactCheck.getstats()
@@ -36,3 +37,42 @@ function histdict(a)
     @p map a x->d[x] = get(d,x,0) + 1
     d
 end
+
+function serve(basepath::AbstractString, args...;kargs...)
+    basepath = abspath(basepath)
+    serve(args...; kargs...) do req, res
+        filename = @p concat basepath req.resource | normpath
+        @show filename
+        if startswith(filename, basepath) && existsfile(filename) && !isdir(filename)
+            HttpServer.FileResponse(filename)
+        else
+            Response(403)
+        end
+    end
+end
+
+function serve(f::Function, portrange = 8080:8199; ngrok = false)
+    eval(:(using HttpServer))
+    server = Server(HttpHandler(f))
+    port, tcp = listenany(fst(portrange))
+    close(tcp)
+    @async run(server, port)
+    if ngrok
+        (stdout,stdin,process) = readandwrite(`ngrok -log stdout $port`);
+        a = eachline(stdout)
+        b = []
+        @async for x in a
+            if contains(x,"established")
+                push!(b,x)
+                break
+            end
+        end
+        for x in 1:50
+            isempty(b) || break
+            sleep(0.1)
+        end
+        return @p fst b | split "://" | last | strip
+    end
+    Int(port)
+end
+
