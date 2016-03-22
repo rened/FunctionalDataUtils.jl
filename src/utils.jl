@@ -58,11 +58,11 @@ function serve(f::Function, portrange = 8080:8199; ngrok = false)
     close(tcp)
     @async run(server, port)
     if ngrok
-        (stdout,stdin,process) = readandwrite(`ngrok -log stdout $port`);
+        (stdout,stdin,process) = readandwrite(`ngrok http $port -log stdout --log-level "debug"`);
         a = eachline(stdout)
         b = []
         @async for x in a
-            if contains(x,"established")
+            if contains(x,"Hostname:")
                 push!(b,x)
                 break
             end
@@ -71,7 +71,7 @@ function serve(f::Function, portrange = 8080:8199; ngrok = false)
             isempty(b) || break
             sleep(0.1)
         end
-        return @p fst b | split "://" | last | strip
+        return @p fst b | split "Hostname:" | last | split ".ngrok.io" | fst | concat ".ngrok.io"
     end
     Int(port)
 end

@@ -320,11 +320,12 @@ distance(a::Number,b::Number) = abs(a-b)
 randbase(basedim, origdim) = randn(MersenneTwister(0), basedim, origdim)
 randproj(a, targetdim::Int) = randbase(targetdim, sizem(a))*a
 
-mean_(a) = mean(a, ndims(a))   
-std_(a) = std(a, ndims(a))
-var_(a) = var(a, ndims(a))
-min_(a) = minimum(a, ndims(a))
-max_(a) = maximum(a, ndims(a))
-sum_(a) = sum(a, ndims(a))
+squ(a) = squeeze(a,ndims(a))
+mean_(a) = squ(mean(a, ndims(a)))
+std_(a) = squ(std(a, ndims(a)))
+var_(a) = squ(var(a, ndims(a)))
+min_(a) = squ(minimum(a, ndims(a)))
+max_(a) = squ(maximum(a, ndims(a)))
+sum_(a) = squ(sum(a, ndims(a)))
 
 normmean_(a) = a .- mean_(a)

@@ -749,13 +749,14 @@ function mlstransform(v::Array{Float32,2},source::Array{Float32,2},target::Array
     (term1'*term2*term3)'+qstar
 end
 
-function warp(img, from, to)
+function warp(img, from, to, targetsize = size(img)[1:2])
     imgslice = img[:,:,1]
-    coords = @p meshgrid imgslice | asfloat32 | showinfo
+    targetsize = targetsize[1:2]
+    coords = @p meshgrid targetsize | asfloat32
     from = asfloat32(from)
     to = asfloat32(to)
-    @time coords = @p map coords mlstransform from to
+    coords = @p map coords mlstransform from to
     ind = @p asint coords | clamp imgslice | map subtoind imgslice
-    f(a) = @p getindex a ind | reshape size(a)
+    f(a) = @p getindex a ind | reshape targetsize
     ndims(img) == 2 ? f(img) : map(img,f)
 end

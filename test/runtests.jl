@@ -41,6 +41,15 @@ shouldtest("computing") do
 end
 
 shouldtest("computervision") do
+    shouldtestcontext("warp") do
+        img = rand(10,20,3)
+        a = rand(3:9,2,4)
+        b = copy(a)
+        b[:,end] = 10
+        @fact size(warp(img,a,b))  -->  (10,20,3)
+        @fact size(warp(img,a,b,(8,9)))  -->  (8,9,3)
+        
+    end
     shouldtestcontext("iimg") do
         a = [1 2 3]
         @fact size(iimg(a)) --> (1,3)
