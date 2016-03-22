@@ -9,6 +9,7 @@ export stridedblocksub
 export inpolygon, inpointcloud
 export medfilt
 export gausspos
+export warp
 
 
 #######################################
@@ -731,4 +732,30 @@ function gausspos(a, n, std = 2)
     @p randn ndim 2*n | times S | plus s2 | reject (x->x!=clamp(x,a)) | round Int _ | take n
 end
 
+wf(v,p,alpha) = asfloat32(1./(distance(v,p).^(2.*alpha)+0.000001))
+function mlstransform(v::Array{Float32,2},source::Array{Float32,2},target::Array{Float32,2})
+    q = source
+    p = target
+    alpha = 1
+    w = wf(v,p,alpha)::Array{Float32,2}
+    wnorm = normsum(w)
+    pstar = sum(wnorm.*p,2)
+    qstar = sum(wnorm.*q,2)
+    phat = p.-pstar
+    qhat = q.-qstar
+    term1 = v-pstar
+    term2 = inv(sum([phat[:,i]*w[i]*phat[:,i]' for i in 1:len(phat)]))
+    term3 = sum([w[j]*phat[:,j]*qhat[:,j]' for j in 1:len(phat)])
+    (term1'*term2*term3)'+qstar
+end
 
+function warp(img, from, to)
+    imgslice = img[:,:,1]
+    coords = @p meshgrid imgslice | asfloat32 | showinfo
+    from = asfloat32(from)
+    to = asfloat32(to)
+    @time coords = @p map coords mlstransform from to
+    ind = @p asint coords | clamp imgslice | map subtoind imgslice
+    f(a) = @p getindex a ind | reshape size(a)
+    ndims(img) == 2 ? f(img) : map(img,f)
+end
