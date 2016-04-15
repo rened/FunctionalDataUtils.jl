@@ -1,4 +1,5 @@
 using MultivariateStats
+
 export iimg, iimg!
 export interp3, interp3with01coords, resize, resizeminmax
 export grid, meshgrid, meshgrid3, centeredgrid, centeredmeshgrid, overlaygradient, toranges, tosize, tosize3
@@ -9,7 +10,7 @@ export stridedblocksub
 export inpolygon, inpointcloud
 export medfilt
 export gausspos
-export warp
+export warp, rotate
 
 
 #######################################
@@ -86,8 +87,8 @@ interp3with01coords(a,m,n,o) = interp3(a, 1+(size(a,1)-1)*m, 1+(size(a,2)-1)*n, 
 #####################################################
 ##   resize
 
-resize(a, factor::Int; kargs...) = resize(a, round(factor*siz(a)); kargs...)
-resize(a, factor::Number; kargs...) = resize(a, round(factor*siz(a)); kargs...)
+resize(a, factor::Int; kargs...) = resize(a, asint(factor*siz(a)); kargs...)
+resize(a, factor::Number; kargs...) = resize(a, asint(factor*siz(a)); kargs...)
 
 # method: :nearest or :interp
 function resize{T<:Real}(a::Array{T}, s::AbstractArray; method = :interp)
@@ -562,14 +563,22 @@ function bwdist(a, pos)
     end
 end
 
-function blocks{T1,T2}(pos::Array{T1,2}, a::Array{T2,2}; blocksize = 32,
+function blocks{T1,T2,N}(pos::Array{T1,2}, a::Array{T2,N}; blocksize = 32,
     scale = 1,
     grid = round(Int, scale .* centeredmeshgrid(repeat(blocksize, ndims(a))...)),
     borderstyle = :staysinside, precompute = false)
-    r = similar(a, blocksize^sizem(pos), len(pos))
-    assert(sizem(pos) == ndims(a))
 
-    inds = @p map grid+1 subtoind a | minus 1 | vec
+    if sizem(pos) == 2 && ndims(a) == 3 && sizeo(a) < 5
+        return @p map a x->blocks(pos, x; blocksize = blocksize, scale = scale,
+            borderstyle = borderstyle, precompute = precompute)
+    end
+
+    r = similar(a, blocksize^sizem(pos), len(pos))
+    if sizem(pos) != ndims(a)
+        error("sizem(pos)==$(sizem(pos)) does not match ndims(a)==$(ndims(a))")
+    end
+
+    inds = @p map grid+1 subtoind a | minus 1 | vec | showinfo "inds"
 
     maxoffset = maximum(abs(grid))
     mi = ones(sizem(pos),1)*maxoffset+1
@@ -760,3 +769,18 @@ function warp(img, from, to, targetsize = size(img)[1:2])
     f(a) = @p getindex a ind | reshape targetsize
     ndims(img) == 2 ? f(img) : map(img,f)
 end
+
+function rotate{T}(a::Array{T,3}, args...; kargs...)
+    @p map a x->rotate(x,args...; kargs...)
+end
+
+function rotate{T}(a::Array{T,2}, alpha; background = zero(T))
+    r = background*ones(T,sizem(a)+2,sizen(a)+2)
+    r[2:end-1,2:end-1] = a
+    c = centeredmeshgrid(r)
+    alpha = -alpha
+    rotmat = [cos(alpha) -sin(alpha); sin(alpha) cos(alpha)]
+    r = @p asint rotmat*c | plus div(siz(r),2)+1 | clamp r | map subtoind r | getindex r _ | reshape size(r)
+    r[2:end-1,2:end-1]
+end
+

@@ -23,7 +23,7 @@ if VERSION.minor == 3
 else
     fasthash(a::Char) = fasthash(Any[string(a), "__juliachar"])
 end
-fasthash(a::ASCIIString) = sha256(a)
+fasthash(a::AbstractString) = sha256(a)
 fasthash(a::Symbol) = fasthash(Any[string(a),"__juliasymbol"])
 fasthash(a::Tuple) = fasthash(Any[a..., "__juliatuple"])
 fasthash(f::Function) = fasthash(Any[string(f), "__juliafunction"])

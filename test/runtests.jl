@@ -13,6 +13,9 @@ shouldtest("machinelearning") do
     end
     shouldtestcontext("randproj") do 
     end
+    shouldtestcontext("loocv") do 
+    end
+
 end
 
 shouldtest("computing") do

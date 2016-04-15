@@ -19,6 +19,11 @@ import FunctionalData.apply
 using SHA
 import FactCheck
 
+isinstalled(a) = isa(Pkg.installed(a), VersionNumber)
+if isinstalled("Images")
+    import Images: AbstractImage, raw, grayim, colorim
+end
+
 include("computing.jl")
 include("numerical.jl")
 include("computervision.jl")

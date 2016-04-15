@@ -1,5 +1,6 @@
-export jetcolormap, asimage, asimagesc, blocksvisu, pad, image2array, poly2mask, embedvisu
+export jetcolormap, asimage, asimagesc, asimagescrgb, blocksvisu, pad, image2array, poly2mask, embedvisu
 export jetcolors, jetcolorants
+export aslogimage
 
 function jetcolormap(n)
     step(m, i) = i>=m ? 1.0 : 0.0
@@ -14,17 +15,14 @@ function jetcolormap(n)
     r[3, :] = [f(n/4, i) for i in 1:n]
     clamp(r, 0f0, 1f0)
 end
-function jetcolors(a,mi,ma)
-    j = jetcolormap(101)
+function jetcolors(a,mi,ma, n = 101)
+    j = jetcolormap(n)
     @p collect a | minus mi | divby (ma-mi) | clamp 0. 1. | times 99.9 | plus 1 | round Int _ | part j _ 
 end
-jetcolors(a) = jetcolors(a, minimum(a), maximum(a)+0.01)
+jetcolors(a, args...) = jetcolors(a, minimum(a), maximum(a)+0.01)
 jetcolorants(a...) = mapvec(jetcolors(a...),x->RGB(x[1],x[2],x[3]))
 
-
-isinstalled(a) = isa(Pkg.installed(a), VersionNumber)
 if isinstalled("Images")
-    import Images: grayim, colorim
     function asimage{T}(a::Array{T,2})
         grayim(a')
     end
@@ -34,11 +32,11 @@ if isinstalled("Images")
             assert(sizeo(a)!=3)
             a = permutedims(a,[2,3,1])
         end
-        colorim(a)
+        @p map a transpose | colorim
     end
 end
 
-function asimagesc(a, norm = true)
+function asimagescrgb(a, norm = true)
     cm = jetcolormap(256)
     r = Array(Float32, size(a, 1), size(a, 2), 3)
     normf = norm ? norm01 : identity
@@ -48,6 +46,8 @@ function asimagesc(a, norm = true)
     r[:,:,3] = cm[3, b[:]]
     r
 end
+
+asimagesc = asimage*asimagescrgb
 
 function blocksvisu(a, padding = 0)
     a = unstack(a)
@@ -66,7 +66,7 @@ function blocksvisu(a, padding = 0)
     a = @p partsoflen a ceil(Int,sqrt(n)) | map riffle z | map col | map flatten
     z = @p paddingf size(fst(a),1) padsize(size(fst(a),2))
     a[end] = @p pad a[end] siz(fst(a)) padding
-    @p riffle a z | row | flatten
+    r = @p riffle a z | row | flatten
 end
 
 function embedvisu{T<:Number,N}(a::Matrix, patches::DenseArray{T,N}, s = 2000)
@@ -104,3 +104,8 @@ function pad(a, siz, value = 0)
 end
 
 image2array(img) = @p map Any[:r,:g,:b] (i->map(y->y.(i), img.data)) | stack
+
+aslogimage(a) = @p clamp a 0 Inf | plus 1 | log | asimagesc
+
+
+

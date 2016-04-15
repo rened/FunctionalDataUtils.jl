@@ -21,6 +21,7 @@ copyfloat{T}(a::Array{T}) = copy(a)
 normsum(a) = normsum!(copyfloat(a))
 function normsum!(r)
     a = sum(r)
+    a == 0 && return r
     for i = 1:length(r)
         r[i] ./= a
     end

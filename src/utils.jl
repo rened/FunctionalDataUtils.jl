@@ -1,5 +1,5 @@
-export exitwithteststatus, asfloat16, asfloat32, asfloat64, asint, histdict
-export tryasfloat32, tryasfloat64, tryasint
+export exitwithteststatus, asfloat16, asfloat32, asfloat64, asint, histdict, asdict
+export tryasfloat32, tryasfloat64, tryasint, fromimage
 export serve
 
 function exitwithteststatus()
@@ -13,19 +13,26 @@ function exitwithteststatus()
     exit(s["nNonSuccessful"])
 end
 
-if VERSION.minor > 3
-    asint(a) = round(Int, a)
-    asint(a::AbstractString) = parse(Int, a)
-    asfloat16(a) = map(Float16, a)
-    asfloat32(a) = map(Float32, a)
-    asfloat32(a::AbstractString) = parse(Float32, a)
-    asfloat64(a) = map(Float64, a)
-    asfloat64(a::AbstractString) = parse(Float64, a)
-else
-    asint = Base.int
-    asfloat32 = Base.float32
-    asfloat64 = Base.float64
+asint(a) = round(Int, a)
+asint(a::AbstractString) = parse(Int, a)
+asfloat16(a) = map(Float16, a)
+asfloat32(a) = map(Float32, a)
+asfloat32(a::AbstractString) = parse(Float32, a)
+if isinstalled("Images")
+    function asfloat32{T<:AbstractImage}(a::T)
+        a = raw(a)
+        if ndims(a) == 3
+            a = permutedims(a,[3,2,1])
+            a = a[:,:,1:min(sizeo(a),3)]
+        else
+            a = a'
+        end
+        @p asfloat32 a | divby 255 | clamp 0 1
+    end
 end
+
+asfloat64(a) = map(Float64, a)
+asfloat64(a::AbstractString) = parse(Float64, a)
 
 tryasint(a, d = -1) = try asint(a) catch return d end
 tryasfloat32(a, d = NaN) = try asfloat32(a) catch return d end
@@ -37,6 +44,9 @@ function histdict(a)
     @p map a x->d[x] = get(d,x,0) + 1
     d
 end
+
+asdict(a) = @p fieldnames a | map (x->Pair(x,getfield(a,x))) | Dict
+asdict{T<:Union{Dict,AbstractString,Array}}(a::T) = a
 
 function serve(basepath::AbstractString, args...;kargs...)
     basepath = abspath(basepath)
