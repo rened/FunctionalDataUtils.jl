@@ -4,7 +4,7 @@ export iimg, iimg!
 export interp3, interp3with01coords, resize, resizeminmax
 export grid, meshgrid, meshgrid3, centeredgrid, centeredmeshgrid, overlaygradient, toranges, tosize, tosize3
 export imregionalmin, imregionalmax, monogen, bwlabel, bwlabel!, monoslic, border, sortcoords, bwdist
-export blocks, blocks!!
+export blocks, blocks!!, cutbox
 export rle, unrle
 export stridedblocksub
 export inpolygon, inpointcloud
@@ -569,8 +569,8 @@ function blocks{T1,T2,N}(pos::Array{T1,2}, a::Array{T2,N}; blocksize = 32,
     borderstyle = :staysinside, precompute = false)
 
     if sizem(pos) == 2 && ndims(a) == 3 && sizeo(a) < 5
-        return @p map a x->blocks(pos, x; blocksize = blocksize, scale = scale,
-            borderstyle = borderstyle, precompute = precompute)
+        return @p map a (x->blocks(pos, x; blocksize = blocksize, scale = scale,
+            borderstyle = borderstyle, precompute = precompute)) | permutedims [1,3,2]
     end
 
     r = similar(a, blocksize^sizem(pos), len(pos))
@@ -578,7 +578,7 @@ function blocks{T1,T2,N}(pos::Array{T1,2}, a::Array{T2,N}; blocksize = 32,
         error("sizem(pos)==$(sizem(pos)) does not match ndims(a)==$(ndims(a))")
     end
 
-    inds = @p map grid+1 subtoind a | minus 1 | vec | showinfo "inds"
+    inds = @p map grid+1 subtoind a | minus 1 | vec
 
     maxoffset = maximum(abs(grid))
     mi = ones(sizem(pos),1)*maxoffset+1
@@ -605,6 +605,9 @@ function blockssample_internal!{T}(r, pos::Array{Int,2}, a::Array{T,2}, inds::Ar
         end
     end
 end
+
+cutbox{T}(ind, a::Array{T,2}) = a[ind[1,1]:ind[1,2],ind[2,1]:ind[2,2]]
+cutbox{T}(ind, a::Array{T,3}) = a[ind[1,1]:ind[1,2],ind[2,1]:ind[2,2],:]
 
 function rle(a)
     r = Dict()
@@ -741,11 +744,10 @@ function gausspos(a, n, std = 2)
     @p randn ndim 2*n | times S | plus s2 | reject (x->x!=clamp(x,a)) | round Int _ | take n
 end
 
-wf(v,p,alpha) = asfloat32(1./(distance(v,p).^(2.*alpha)+0.000001))
-function mlstransform(v::Array{Float32,2},source::Array{Float32,2},target::Array{Float32,2})
+wf(v,p,alpha) = asfloat32(1./((1+distance(v,p)).^(2.*alpha)+0.0001))
+function mlstransform(v::Array{Float32,2},source::Array{Float32,2},target::Array{Float32,2}, alpha = 1)
     q = source
     p = target
-    alpha = 1
     w = wf(v,p,alpha)::Array{Float32,2}
     wnorm = normsum(w)
     pstar = sum(wnorm.*p,2)
@@ -758,13 +760,18 @@ function mlstransform(v::Array{Float32,2},source::Array{Float32,2},target::Array
     (term1'*term2*term3)'+qstar
 end
 
-function warp(img, from, to, targetsize = size(img)[1:2])
+function warp(img, from, to, targetsize = size(img)[1:2]; alpha = 2)
     imgslice = img[:,:,1]
     targetsize = targetsize[1:2]
     coords = @p meshgrid targetsize | asfloat32
     from = asfloat32(from)
     to = asfloat32(to)
-    coords = @p map coords mlstransform from to
+    from_m = mean(from,2)
+    to_m = mean(to,2)
+    from_ = from .- from_m
+    to_ = to .- to_m
+
+    coords = @p minus coords to_m | map (x->mlstransform(x,from_,to_,alpha)) | plus from_m
     ind = @p asint coords | clamp imgslice | map subtoind imgslice
     f(a) = @p getindex a ind | reshape targetsize
     ndims(img) == 2 ? f(img) : map(img,f)
