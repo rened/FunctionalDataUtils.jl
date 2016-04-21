@@ -760,9 +760,9 @@ function mlstransform(v::Array{Float32,2},source::Array{Float32,2},target::Array
     (term1'*term2*term3)'+qstar
 end
 
-function warp(img, from, to, targetsize = size(img)[1:2]; alpha = 2)
+function warp(img, from, to, targetsize = siz(img)[1:2]; alpha = 2)
     imgslice = img[:,:,1]
-    targetsize = targetsize[1:2]
+    targetsize = tuple(targetsize[1:2]...)
     coords = @p meshgrid targetsize | asfloat32
     from = asfloat32(from)
     to = asfloat32(to)
