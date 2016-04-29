@@ -8,7 +8,7 @@ export clamp, clamp!
 export nanfunction, nanmean, nanstd, nanmedian
 export distance
 export randbase, randproj
-export mean_, std_, var_, min_, max_, sum_
+export mean_, std_, var_, min_, max_, sum_, median_
 
 
 #######################################
@@ -323,6 +323,7 @@ randproj(a, targetdim::Int) = randbase(targetdim, sizem(a))*a
 
 squ(a) = squeeze(a,ndims(a))
 mean_(a) = squ(mean(a, ndims(a)))
+median_(a) = squ(median(a, ndims(a)))
 std_(a) = squ(std(a, ndims(a)))
 var_(a) = squ(var(a, ndims(a)))
 min_(a) = squ(minimum(a, ndims(a)))

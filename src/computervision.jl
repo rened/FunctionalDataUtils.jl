@@ -2,14 +2,14 @@ using MultivariateStats
 
 export iimg, iimg!
 export interp3, interp3with01coords, resize, resizeminmax
-export grid, meshgrid, meshgrid3, centeredgrid, centeredmeshgrid, overlaygradient, toranges, tosize, tosize3
+export meshgrid, meshgrid3, centeredgrid, centeredmeshgrid, overlaygradient, toranges, tosize, tosize3
 export imregionalmin, imregionalmax, monogen, bwlabel, bwlabel!, monoslic, border, sortcoords, bwdist
 export blocks, blocks!!, cutbox
 export rle, unrle
 export stridedblocksub
 export inpolygon, inpointcloud
 export medfilt
-export gausspos
+export gausspos, gaussmask
 export warp, rotate
 
 
@@ -191,29 +191,20 @@ toranges(a) = [a[1,i]:a[2,i] for i in 1:len(a)]
 tosize(a) = tuple((a[2,:]-a[1,:].+1)...)
 tosize3(a) = (size(a,2)<3 ? a = cat(2,a,[1 2]') : nothing; tosize(a))
 
-# function grid(rm,rn)
-#   m = [m for m in rm, n in rn]
-#   n = [n for m in rm, n in rn]
-#   return (m,n)
-# end
-# function grid(rm,rn,ro)
-#   m = [m for m in rm, n in rn, o in ro]
-#   n = [n for m in rm, n in rn, o in ro]
-#   o = [o for m in rm, n in rn, o in ro]
-#   return (m,n,o)
-# end
-# grid{T}(a::Array{T,2}) = grid(1:size(a,1), 1:size(a,2))
-# grid{T}(a::Array{T,3}) = grid(1:size(a,1), 1:size(a,2), 1:size(a,3))
+function monogrid(rm,rn)
+  m = [m for m in rm, n in rn]
+  n = [n for m in rm, n in rn]
+  return (m,n)
+end
+function monogrid(rm,rn,ro)
+  m = [m for m in rm, n in rn, o in ro]
+  n = [n for m in rm, n in rn, o in ro]
+  o = [o for m in rm, n in rn, o in ro]
+  return (m,n,o)
+end
+monogrid{T}(a::Array{T,2}) = monogrid(1:size(a,1), 1:size(a,2))
+monogrid{T}(a::Array{T,3}) = monogrid(1:size(a,1), 1:size(a,2), 1:size(a,3))
 
-# function meshgrid(a...)
-#   t = grid(a...)
-#   r = zeros(length(t),length(t[1]))
-#   for i = 1:length(t)
-#     r[i,:] = t[i][:]
-#   end
-#   r
-# end
-    
 meshgrid(a::Tuple) = meshgrid(a...)
 meshgrid(a::Array) = meshgrid(size(a)...)
 meshgrid(a::Int, v::Array) = meshgrid(repeat([a], ndims(v))...)
@@ -258,7 +249,7 @@ imregionalmax(img) = imregionmin(-float(img))
 
 
 
-monogen(img, spacing) = monogen_(float32(img), float32(spacing*2))
+monogen(img, spacing) = monogen_(asfloat32(img), asfloat32(spacing*2))
 
 function monogen_(img::Array{Float32,2}, wavelength::Float32)
   Base.FFTW.set_num_threads(nphysicalcores())
@@ -272,8 +263,8 @@ function monogen_(img::Array{Float32,2}, wavelength::Float32)
   cols = size(img,2)
   
   # Generate horizontal and vertical frequency grids that vary from
-  (u2, u1) = grid([linspace(0.,0.5,ifloor(rows/2)), linspace(-0.5,0.,ceil(Int,rows/2))],
-  [linspace(0.,0.5,ifloor(cols/2)), linspace(-0.5,.0,ceil(Int,cols/2))])
+  (u2, u1) = monogrid([linspace(0.,0.5,floor(rows/2)); linspace(-0.5,0.,ceil(Int,rows/2))],
+  [linspace(0.,0.5,floor(cols/2)); linspace(-0.5,.0,ceil(Int,cols/2))])
 
   radius = sqrt(u1.^2 + u2.^2)    # Matrix values contain frequency
   radius[1,1] = 1
@@ -281,12 +272,12 @@ function monogen_(img::Array{Float32,2}, wavelength::Float32)
   radius[1,end] = 1
   radius[end,end] = 1
 
-  H1 = complex64(0,1)*u1./radius   # The two monogenic filters in the frequency domain
+  H1 = Complex64(0,1)*u1./radius   # The two monogenic filters in the frequency domain
   u1 = nothing
-  H2 = complex64(0,1)*u2./radius
+  H2 = Complex64(0,1)*u2./radius
   u2 = nothing
 
-  logGabor = exp((-(log(radius*wavelength)).^2) / (2 * log(float32(0.65)).^2))
+  logGabor = exp((-(log(radius*wavelength)).^2) / (2 * log(asfloat32(0.65)).^2))
   #radius = nothing
   logGabor[1,1] = 0                    #% undo the radius fudge.
   logGabor[end,1] = 0
@@ -320,8 +311,8 @@ function monogen_(img::Array{Float32,3}, wavelength::Float32)
 
   img = myfft(img)
   (rows,cols,channels) = size(img)
-  (u2, u1, u3) = grid([linspace(0.,0.5,ifloor(rows/2)), linspace(-0.5,0.,ceil(Int,rows/2))],[linspace(0.,0.5,ifloor(cols/2)), linspace(-0.5,0.,ceil(Int,cols/2))],
-  [linspace(0.,0.5,ifloor(channels/2)), linspace(-0.5,0.,ceil(Int,channels/2))]);
+  (u2, u1, u3) = monogrid([linspace(0.,0.5,floor(rows/2)), linspace(-0.5,0.,ceil(Int,rows/2))],[linspace(0.,0.5,floor(cols/2)), linspace(-0.5,0.,ceil(Int,cols/2))],
+  [linspace(0.,0.5,floor(channels/2)), linspace(-0.5,0.,ceil(Int,channels/2))]);
 
    radius = sqrt(u1.^2 + u2.^2 + u3.^2);    # Matrix values contain frequency
     # values as a radius from centre
@@ -344,7 +335,7 @@ function monogen_(img::Array{Float32,3}, wavelength::Float32)
   u2=nothing
     H3 = u3./radius;
   u3=nothing
-    logGabor = exp((-(log(radius*wavelength)).^2) / (2 * float32(log(0.65))^2));
+    logGabor = exp((-(log(radius*wavelength)).^2) / (2 * asfloat32(log(0.65))^2));
   radius=nothing
   logGabor[1,1,1] = 0;                    # undo the radius fudge.
   logGabor[1,1,end] = 0;               
@@ -356,11 +347,11 @@ function monogen_(img::Array{Float32,3}, wavelength::Float32)
   logGabor[end,end,end] = 0;           
   img = img.*logGabor;
   logGabor=nothing
-  h = myifft(img.*(complex64(0,1)*H1)).^2;
+  h = myifft(img.*(Complex64(0,1)*H1)).^2;
   H1=nothing
-  h += myifft(img.*(complex64(0,1)*H2)).^2;
+  h += myifft(img.*(Complex64(0,1)*H2)).^2;
   H2=nothing
-  h += myifft(img.*(complex64(0,1)*H3)).^2;
+  h += myifft(img.*(Complex64(0,1)*H3)).^2;
   H3=nothing
     
   psi = atan2(myifft(img), sqrt(h));
@@ -432,9 +423,9 @@ end
 end
 
 
-#monoslic(img, spacing; kargs...) = monoslic(float32(img), float32(spacing); kargs...)
+#monoslic(img, spacing; kargs...) = monoslic(asfloat32(img), asfloat32(spacing); kargs...)
 #function monoslic(img::Array{Float32}, spacing::Float32; workers = Base.workers())
-monoslic(img, spacing; kargs...) = monoslic(float32(img), float32(spacing))
+monoslic(img, spacing; kargs...) = monoslic(asfloat32(img), asfloat32(spacing))
 function monoslic(img::Array{Float32}, spacing::Float32)
     println("computing monogen")
     @time M = monogen(img,spacing) 
@@ -485,7 +476,7 @@ function monoslic(img::Array{Float32}, spacing::Float32)
             bestdist[mi,ni,oi] = d
             bestind[mi,ni,oi] = c
             newcenters[:,mi,ni,oi] = [m;n;o]
-            signs[mi,ni,oi] = float32(M[m,n,o] > 0)
+            signs[mi,ni,oi] = asfloat32(M[m,n,o] > 0)
         end
     end
 
@@ -501,9 +492,9 @@ function monoslic(img::Array{Float32}, spacing::Float32)
     mi2s = Array(Int,3)
     println("B loop")
     lookup = signs
-    mis = asint([1:size(B,1)]./spacing.+0.5f0)
-    nis = asint([1:size(B,2)]./spacing.+0.5f0)
-    ois = asint([1:size(B,3)]./spacing.+0.5f0)
+    mis = asint(collect(1:size(B,1))./spacing.+0.5f0)
+    nis = asint(collect(1:size(B,2))./spacing.+0.5f0)
+    ois = asint(collect(1:size(B,3))./spacing.+0.5f0)
     clampedmis = [[clamp(mi-1,1,csm), clamp(mi,1,csm), clamp(mi+1,1,csm)] for mi in mis]
     clampednis = [[clamp(ni-1,1,csn), clamp(ni,1,csn), clamp(ni+1,1,csn)] for ni in nis]
     clampedois = [[clamp(oi-1,1,cso), clamp(oi,1,cso), clamp(oi+1,1,cso)] for oi in ois]
@@ -513,10 +504,10 @@ function monoslic(img::Array{Float32}, spacing::Float32)
         processslice(o, B, clampedois, clampednis, clampedmis, newcenters, sv, labels, signs, notsigns)
     end
     bwlabel!(sv, maximum(sv)+1)
-    uind = unique(sv)
+    uind = unique(asint(sv))
     labels = zeros(1,asint(maximum(uind)))
     labels[uind] = randperm(1:length(uind))
-    asint(labels[sv])
+    asint(labels[asint(sv)])
 end
 
 border{T}(a::Array{T,2}) = @p border cat(3,a,a,a) | snd
@@ -569,8 +560,9 @@ function blocks{T1,T2,N}(pos::Array{T1,2}, a::Array{T2,N}; blocksize = 32,
     borderstyle = :staysinside, precompute = false)
 
     if sizem(pos) == 2 && ndims(a) == 3 && sizeo(a) < 5
-        return @p map a (x->blocks(pos, x; blocksize = blocksize, scale = scale,
-            borderstyle = borderstyle, precompute = precompute)) | permutedims [1,3,2]
+        r = @p map a (x->blocks(pos, x; blocksize = blocksize, scale = scale,
+            borderstyle = borderstyle, precompute = precompute))
+        return ndims(r) == 3 ? permutedims(r,[1,3,2]) : r
     end
 
     r = similar(a, blocksize^sizem(pos), len(pos))
@@ -742,6 +734,17 @@ function gausspos(a, n, std = 2)
     s2 = s/2
     S = s2/std
     @p randn ndim 2*n | times S | plus s2 | reject (x->x!=clamp(x,a)) | round Int _ | take n
+end
+
+gaussmask(a, stdstoedge = 1) = gaussmask(sizem(a), sizen(a), stdstoedge)
+function gaussmask(sm::Number, sn::Number, stdstoedge = 1)
+    m = mean([sm; sn])
+    s = m/stdstoedge
+    a = meshgrid(linspace(-m,m,sm), linspace(-m,m,sn))
+    d2 = sum(a.*a,1)
+    g = exp(-d2 / (2*s^2))
+    g = norm01(g)
+    r = reshape(g, sm, sn)
 end
 
 wf(v,p,alpha) = asfloat32(1./((1+distance(v,p)).^(2.*alpha)+0.0001))

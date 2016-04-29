@@ -37,6 +37,7 @@ if isinstalled("Images")
 end
 
 function asimagescrgb(a, norm = true)
+    a = asfloat32(a)
     cm = jetcolormap(256)
     r = Array(Float32, size(a, 1), size(a, 2), 3)
     normf = norm ? norm01 : identity
