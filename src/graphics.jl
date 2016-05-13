@@ -32,7 +32,7 @@ if isinstalled("Images")
             assert(sizeo(a)!=3)
             a = permutedims(a,[2,3,1])
         end
-        @p map a transpose | colorim
+        colorim(a)
     end
 end
 
