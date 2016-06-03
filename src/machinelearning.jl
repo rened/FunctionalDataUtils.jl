@@ -2,7 +2,8 @@ export crossval
 
 crossval(a::Tuple, args...; kargs...) = loocv(a..., args...; kargs...)
 
-function crossval(data, labels, train; predict = predict, n = 4, predictdata = [], shuffle = true)
+function crossval(data, labels, train; predict = predict, n = 4, predictdata = [], shuffle = true,
+    nruns = n)
     if !isempty(predictdata) && len(predictdata) != len(data)
         error("len(predictdata)==$(len(predictdata)) is not equal len(data)==$(len(data))")
     end
@@ -15,7 +16,7 @@ function crossval(data, labels, train; predict = predict, n = 4, predictdata = [
 
     predictdata = isempty(predictdata) ? D : @p part predictdata ind | partition n
 
-    r = cell(n)
+    r = cell(nruns)
     for i in 1:n
         d1, _ = cut(D,i)
         _, d2 = cut(predictdata,i)
