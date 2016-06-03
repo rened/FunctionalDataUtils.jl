@@ -9,10 +9,10 @@ function crossval(data, labels, train; predict = predict, n = 4, predictdata = [
     end
 
     ind = shuffle ? randperm(1:len(data)) : collect(1:len(data))
-    invind = invperm(ind)
 
     D = @p part data ind | partition n
     L = @p part labels ind | partition n
+    invind = @p invperm ind | partition n
 
     predictdata = isempty(predictdata) ? D : @p part predictdata ind | partition n
 
@@ -23,9 +23,9 @@ function crossval(data, labels, train; predict = predict, n = 4, predictdata = [
         _, d2 = cut(predictdata,i)
         l1, l2 = cut(L,i)
         m = train(flatten(d1),flatten(l1))
-        r[i] = predict(m,flatten(d2))
+        r[i] = @p predict m flatten(d2) | part invind[i]
     end
-    @p flatten r | part invind
+    @p flatten r
 end
 
 
