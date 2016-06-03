@@ -729,11 +729,18 @@ function medfilt(a, b = 1)
 end
 
 function gausspos(a, n, std = 2)
-    ndim = ndims(a)
-    s = siz(a)
+    if length(a)<=3
+        ndim = length(a)
+        s = a
+    else
+        ndim = ndims(a)
+        s = siz(a)
+    end
+    mi = ones(s)
+    ma = s
     s2 = s/2
     S = s2/std
-    @p randn ndim 2*n | times S | plus s2 | reject (x->x!=clamp(x,a)) | round Int _ | take n
+    @p randn ndim 2*n | times S | plus s2 | reject (x->x!=clamp(x,mi,ma)) | round Int _ | take n
 end
 
 gaussmask(a, stdstoedge = 1) = gaussmask(sizem(a), sizen(a), stdstoedge)

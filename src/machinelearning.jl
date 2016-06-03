@@ -2,12 +2,12 @@ export crossval
 
 crossval(a::Tuple, args...; kargs...) = loocv(a..., args...; kargs...)
 
-function crossval(data, labels, train; predict = predict, n = 4, predictdata = [])
+function crossval(data, labels, train; predict = predict, n = 4, predictdata = [], shuffle = true)
     if !isempty(predictdata) && len(predictdata) != len(data)
         error("len(predictdata)==$(len(predictdata)) is not equal len(data)==$(len(data))")
     end
 
-    ind = randperm(1:len(data))
+    ind = shuffle ? randperm(1:len(data)) : collect(1:len(data))
     invind = invperm(ind)
 
     D = @p part data ind | partition n
