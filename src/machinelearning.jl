@@ -16,8 +16,9 @@ function crossval(data, labels, train; predict = predict, n = 4, predictdata = [
 
     predictdata = isempty(predictdata) ? D : @p part predictdata ind | partition n
 
+    assert(nruns <= n)
     r = cell(nruns)
-    for i in 1:n
+    for i in 1:nruns
         d1, _ = cut(D,i)
         _, d2 = cut(predictdata,i)
         l1, l2 = cut(L,i)
