@@ -2,7 +2,7 @@ export crossval
 
 crossval(a::Tuple, args...; kargs...) = loocv(a..., args...; kargs...)
 
-function crossval(data, labels, train; predict = predict, n = 4, predictdata = [], shuffle = true)
+function crossval(data, labels, train; predict = predict, n = 4, predictdata = [], shuffle = true, jointmodel = false)
     if !isempty(predictdata) && len(predictdata) != len(data)
         error("len(predictdata)==$(len(predictdata)) is not equal len(data)==$(len(data))")
     end
@@ -23,7 +23,12 @@ function crossval(data, labels, train; predict = predict, n = 4, predictdata = [
         m = train(flatten(d1),flatten(l1))
         r[i] = predict(m,flatten(d2))
     end
-    @p flatten r | part invind
+    r = @p flatten r | part invind
+    if jointmodel
+        return r, @p train data labels
+    else
+        return r
+    end
 end
 
 
