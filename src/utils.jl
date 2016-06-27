@@ -34,9 +34,9 @@ end
 asfloat64(a) = map(Float64, a)
 asfloat64(a::AbstractString) = parse(Float64, a)
 
-tryasint(a, d = -1) = try asint(a) catch return d end
-tryasfloat32(a, d = NaN) = try asfloat32(a) catch return d end
-tryasfloat64(a, d = NaN) = try asfloat64(a) catch return d end
+tryasint(a, d = a) = try asint(a) catch return d end
+tryasfloat32(a, d = a) = try asfloat32(a) catch return d end
+tryasfloat64(a, d = a) = try asfloat64(a) catch return d end
 
 histdict(a, field) = @p extract a field | histdict
 function histdict(a)
