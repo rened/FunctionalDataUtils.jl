@@ -28,11 +28,7 @@ if isinstalled("Images")
     end
 
     function asimage{T}(a::Array{T,3})
-        if sizem(a) == 3
-            assert(sizeo(a)!=3)
-            a = permutedims(a,[2,3,1])
-        end
-        colorim(a)
+        colorim(permutedims(a,[3,2,1]))
     end
 end
 
