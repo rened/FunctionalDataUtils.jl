@@ -30,6 +30,7 @@ if isinstalled("Images")
     function asimage{T}(a::Array{T,3})
         colorim(permutedims(a,[3,2,1]))
     end
+    asimagesc = asimage*asimagescrgb
 end
 
 function asimagescrgb(a, norm = true)
@@ -44,7 +45,6 @@ function asimagescrgb(a, norm = true)
     r
 end
 
-asimagesc = asimage*asimagescrgb
 
 function blocksvisu(a, padding = 0)
     a = unstack(a)
