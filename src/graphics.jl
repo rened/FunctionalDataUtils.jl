@@ -22,17 +22,6 @@ end
 jetcolors(a, args...) = jetcolors(a, minimum(a), maximum(a)+0.01)
 jetcolorants(a...) = mapvec(jetcolors(a...),x->RGB(x[1],x[2],x[3]))
 
-if isinstalled("Images")
-    function asimage{T}(a::Array{T,2})
-        grayim(a')
-    end
-
-    function asimage{T}(a::Array{T,3})
-        colorim(permutedims(a,[3,2,1]))
-    end
-    asimagesc = asimage*asimagescrgb
-end
-
 function asimagescrgb(a, norm = true)
     a = asfloat32(a)
     cm = jetcolormap(256)
@@ -45,6 +34,17 @@ function asimagescrgb(a, norm = true)
     r
 end
 
+
+if isinstalled("Images")
+    function asimage{T}(a::Array{T,2})
+        grayim(a')
+    end
+
+    function asimage{T}(a::Array{T,3})
+        colorim(permutedims(a,[3,2,1]))
+    end
+    asimagesc = asimage*asimagescrgb
+end
 
 function blocksvisu(a, padding = 0)
     a = unstack(a)
