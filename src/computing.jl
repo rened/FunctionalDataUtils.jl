@@ -48,13 +48,11 @@ end
 fasthash(f::Function, args, version) = fasthash(Any[string(f), args..., version])
 
 
-function cache(f,args...; version = "0 none set", kargs...)
-    try 
-        mkdir("zzz")
-    catch
-    end
-    h = fasthash(f, args, version, kargs)
-    filename = "zzz/$(string(f))$h.jls.zzz"
+cache(f::Function, f2::Function, args...) = error("cache(f,f2,...) not supported")
+function cache(f::Function, args...; version = "0 none set", kargs...)
+    mkpath("zzz")
+    h = hash(fasthash([f; args; version; kargs]))
+    filename = "zzz/$(string(f))-$h.jls"
     if existsfile(filename)
         @timedone "reloading $(string(f))" open(deserialize, filename)
     else
@@ -65,6 +63,7 @@ function cache(f,args...; version = "0 none set", kargs...)
         end
     end
 end
+cache(a,f::Function,args...; kargs...) = cache(f, [a; args...]...; kargs...)
 
 
 function dictcache(f, args...; version = "0 none set", filepath = "cache.dictfile")

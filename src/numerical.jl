@@ -1,7 +1,7 @@
 export normsum, norm01, normeuclid, normmean, normmeanstd
 export normsum!, norm01!, normeuclid!, normmean!, normmeanstd!
 export normquantile
-export normunique, valuemap
+export normunique, valuemap, unvaluemap
 export normmean_
 export pcawhitening, zcawhitening, WhiteningBase
 export clamp, clamp!
@@ -115,6 +115,13 @@ import Base.minimum
 minimum_ = minimum
 minimum(f::Function, g::Function) = error("not defined")
 minimum(x::Array,f::Function) = @p map x f | indmin | at x _
+
+function valuemap(a, m::Dict, default = 0)
+    map(x->get(m,x,default),a)
+end
+function unvaluemap(a, m::Dict, default = 0)
+    valuemap(a, flip(m), default)
+end
 
 function valuemap(data, mapping)
     r = Array(promote_type(eltype(mapping),eltype(data)),size(data))
