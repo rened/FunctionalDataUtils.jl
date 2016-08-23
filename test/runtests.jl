@@ -22,12 +22,12 @@ shouldtest("computing") do
     shouldtestcontext("fasthash") do
         @fact fasthash(1) --> "20eae029a26a15420f9ed6d7a9999e823f251b9d44adea5a504e1d8a4f7c5512"
         @fact fasthash(1.) --> "cb5415fc791f65b70b303678e3601d60ac527cc4cdd3a10d1f85b7423b270112"
-        @fact fasthash('a') --> "69361357edf889e9d083a79af81c4e1ab9ed207e94f94f81b18318b8ae3f2964"
-        @fact fasthash("a") --> "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        @fact fasthash(["a"]) --> "cd372fb85148700fa88095e3492d3f9f5beb43e555e5ff26d95f5a6adc36f8e6"
+        @fact fasthash('a') --> "94923c7a4899a5baf82f29551f5e4652e3b7ee50699bbd0b4ddba1538e5963b2"
+        @fact fasthash("a") --> "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
+        @fact fasthash(["a"]) --> "da3811154d59c4267077ddd8bb768fa9b06399c486e1fc00485116b57c9872f5"
         @fact fasthash([1]) --> "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
-        @fact fasthash(UInt8[1]) --> "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        @fact fasthash(Int8[1]) --> "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        @fact fasthash(UInt8[1]) --> "4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a"
+        @fact fasthash(Int8[1]) --> "4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a"
         @fact fasthash(UInt16[1]) --> "47dc540c94ceb704a23875c11273e16bb0b8a87aed84de911f2133568115f254"
         @fact fasthash(Int16[1]) --> "47dc540c94ceb704a23875c11273e16bb0b8a87aed84de911f2133568115f254"
         @fact fasthash(UInt32[1]) --> "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
@@ -200,7 +200,7 @@ shouldtest("computervision") do
         if VERSION.minor >= 4
             @fact size(@p map coords sampler) --> (32,32,100)
         else
-            @fact size(@p map coords x->call(sampler,x)) --> (32,32,100)
+            @fact size(@p map coords x->sampler(x)) --> (32,32,100)
         end
         out = zeros(1024,1)
         pos = col([50,50])
@@ -247,7 +247,7 @@ shouldtest("graphics") do
 
      shouldtestcontext("asimagesc") do
         img = [1 2 3 4 5 6 7 8 9]
-        r = asimagesc(img)
+        r = asimagescrgb(img)
         @fact size(r,3) --> 3
     end    
 

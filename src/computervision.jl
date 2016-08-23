@@ -32,9 +32,15 @@ function iimg!{T}(a::AbstractArray{T,2})
     end
 end
 
+if VERSION < v"0.5-"
+    view_ = sub
+else
+    view_ = view
+end
+
 function iimg!{T}(a::AbstractArray{T,3})
     for z = 1:size(a,3)
-        iimg!(sub(a,1:size(a,1),1:size(a,2),z))
+        iimg!(view_(a,1:size(a,1),1:size(a,2),z))
     end
 
     for x = 1:size(a,2)

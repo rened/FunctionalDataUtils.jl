@@ -127,8 +127,8 @@ function valuemap(data, mapping)
     r = Array(promote_type(eltype(mapping),eltype(data)),size(data))
     for i = 1:length(data)
         v = data[i]
-        if !isnumber(v) || (!isnan(v) && v>0)
-            if isnumber(v) && v>length(mapping)
+        if !isa(v,Number) || (!isnan(v) && v>0)
+            if isa(v,Number) && v>length(mapping)
                 error("valuemap: v>length(mapping), with v==$v and length(mapping)==$(length(mapping))")
             end
             r[i] = mapping[v]

@@ -15,7 +15,7 @@ macro timedone(a, ex)
 end
 
 
-fasthash{T<:Number}(a::Array{T}) = eltype(a)!=UInt8 ? sha256(reinterpret(UInt8, vec(a))) : sha256(a)
+fasthash{T<:Number}(a::Array{T}) = bytes2hex(eltype(a)!=UInt8 ? sha256(reinterpret(UInt8, vec(a))) : sha256(a))
 
 fasthash(a::Number) = fasthash(Any[[a], "__julianumber"])
 if VERSION.minor == 3
@@ -23,7 +23,7 @@ if VERSION.minor == 3
 else
     fasthash(a::Char) = fasthash(Any[string(a), "__juliachar"])
 end
-fasthash(a::AbstractString) = sha256(a)
+fasthash(a::AbstractString) = bytes2hex(sha256(a))
 fasthash(a::Symbol) = fasthash(Any[string(a),"__juliasymbol"])
 fasthash(a::Tuple) = fasthash(Any[a..., "__juliatuple"])
 fasthash(f::Function) = fasthash(Any[string(f), "__juliafunction"])
