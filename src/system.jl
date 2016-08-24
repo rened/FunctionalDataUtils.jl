@@ -1,9 +1,10 @@
 export ncores, nphysicalcores, systemload, normload, setnumworkers, @timedone
 
-@osx_only ncores() = asint(readall(`sysctl -n hw.ncpu`))
-@osx_only nphysicalcores() = asint(readall(`sysctl -n hw.physicalcpu`))
-@linux_only ncores() = asint(readall(`nproc --all`))
-@linux_only nphysicalcores() = div(ncores(),2)
+@static if is_apple() ncores() = asint(readall(`sysctl -n hw.ncpu`)) end
+@static if is_apple() nphysicalcores() = asint(readall(`sysctl -n hw.physicalcpu`)) end
+@static if is_linux() ncores() = asint(readall(`nproc --all`)) end
+@static if is_linux() nphysicalcores() = div(ncores(),2) end
+
 rmcomma(a) = a[end]==',' ? a[1:end-1] : a
 systemload() = parsefloat(rmcomma(split(readall(`uptime`))[end-2]))
 normload() = systemload()/ncores()

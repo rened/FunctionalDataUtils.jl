@@ -16,7 +16,7 @@ export FDU
 using Reexport
 import FunctionalData.apply
 @reexport using FunctionalData, Colors
-using SHA
+using SHA, Compat
 import FactCheck
 
 isinstalled(a) = isa(Pkg.installed(a), VersionNumber)

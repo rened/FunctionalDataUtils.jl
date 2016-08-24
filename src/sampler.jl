@@ -29,7 +29,12 @@ function makeSampler(image, bsize::Int, scale = 1.; centered::Bool = true, col::
     Sampler(image, ind, mi, ma, clampedpos, buf, normmeanstd)
 end
 
-call(a::Sampler, pos) = sample(pos, a)
+@static if VERSION < v"0.5-"
+    call(a::Sampler, pos) = sample(pos, a)
+else
+    (a::Sampler)(pos) = sample(pos, a)
+end
+
 sample(a::Sampler,b::Sampler) = error("Only one of the params can be a sampler.")
 sample(pos, a::Sampler) = sample!(a.buf, pos, a::Sampler)
 sample(a::Sampler, pos) = sample!(a.buf, pos, a::Sampler)
