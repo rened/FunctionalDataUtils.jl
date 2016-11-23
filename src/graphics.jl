@@ -1,5 +1,5 @@
 export jetcolormap, asimage, asimagesc, asimagescrgb, blocksvisu, pad, image2array, poly2mask, embedvisu
-export jetcolors, jetcolorants
+export jetcolors, jetcolorants, jetcolorshex
 export aslogimage
 
 function jetcolormap(n)
@@ -21,6 +21,7 @@ function jetcolors(a,mi,ma, n = 101)
 end
 jetcolors(a, args...) = jetcolors(a, minimum(a), maximum(a)+0.01)
 jetcolorants(a...) = mapvec(jetcolors(a...),x->RGB(x[1],x[2],x[3]))
+jetcolorshex(args...) = @p times jetcolors(args...) 255 | round UInt8 _ | map x->@p vec x | bytes2hex | (x->"#$x") 
 
 function asimagescrgb(a, norm = true)
     a = asfloat32(a)
