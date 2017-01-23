@@ -63,7 +63,7 @@ function cache(f::Function, args...; version = "0 none set", kargs...)
         end
     end
 end
-cache(a,f::Function,args...; kargs...) = cache(f, [a; args...]...; kargs...)
+cache(a,f::Function,args...; kargs...) = cache(f, Any[a, args...]...; kargs...)
 
 
 function dictcache(f, args...; version = "0 none set", filepath = "cache.dictfile")
