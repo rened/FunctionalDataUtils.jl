@@ -13,10 +13,10 @@ function exitwithteststatus()
     exit(s["nNonSuccessful"])
 end
 
-asint(a) = round(Int, a)
+asint(a) = eltype(a)<:Integer ? a : round(Int, a)
 asint(a::AbstractString) = parse(Int, a)
-asfloat16(a) = map(Float16, a)
-asfloat32(a) = map(Float32, a)
+asfloat16(a) = eltype(a) == Float16 ? a : map(Float16, a)
+asfloat32(a) = eltype(a) == Float32 ? a : map(Float32, a)
 asfloat32(a::AbstractString) = parse(Float32, a)
 if isinstalled("Images")
     function asfloat32{T<:AbstractImage}(a::T)
