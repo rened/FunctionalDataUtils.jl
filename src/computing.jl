@@ -29,6 +29,7 @@ fasthash(a::Tuple) = fasthash(Any[a..., "__juliatuple"])
 fasthash(f::Function) = fasthash(Any[string(f), "__juliafunction"])
 fasthash(a::UnitRange) = fasthash(Any[a.start, a.stop, "__juliaunitrange"])
 fasthash(a::Range) = fasthash(Any[a.start, a.step, a.stop, "__juliarange"])
+fasthash(a::FloatRange) = fasthash(Any[a.start, a.step, a.len, a.divisor, "__juliafloatrange"])
 fasthash(a::Bool) = fasthash("$(a)_juliabool")
 fasthash(a) = fasthash(repr(a))
 
