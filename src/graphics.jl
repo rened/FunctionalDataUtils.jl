@@ -17,7 +17,7 @@ function jetcolormap(n)
 end
 function jetcolors(a,mi,ma, n = 101)
     j = jetcolormap(n)
-    @p collect a | minus mi | divby (ma-mi) | clamp 0. 1. | times 99.9 | plus 1 | round Int _ | part j _ 
+    @p collect a | minus mi | divby (ma-mi+eps()) | clamp 0. 1. | times 99.9 | plus 1 | round Int _ | part j _
 end
 jetcolors(a, args...) = jetcolors(a, minimum(a), maximum(a)+0.01)
 jetcolorants(a...) = mapvec(jetcolors(a...),x->RGB(x[1],x[2],x[3]))
