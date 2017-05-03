@@ -54,14 +54,20 @@ function cache(f::Function, args...; version = "0 none set", kargs...)
     mkpath("zzz")
     h = hash(fasthash([f; args; version; kargs]))
     filename = "zzz/$(string(f))-$h.jls"
+
+    prefix = ""
     if existsfile(filename)
-        @timedone "reloading $(string(f))" open(deserialize, filename)
-    else
-        @timedone "computing $(string(f))" begin
-            r = f(args...; kargs...)
-            open(s->serialize(s,r),filename,"w")
-            r
+        try
+            return @timedone "reloading $(string(f))" open(deserialize, filename)
         end
+        println("  reloading failed")
+        prefix = "re"
+    end
+
+    @timedone "$(prefix)computing $(string(f))" begin
+        r = f(args...; kargs...)
+        open(s->serialize(s,r),filename,"w")
+        r
     end
 end
 cache(a,f::Function,args...; kargs...) = cache(f, Any[a, args...]...; kargs...)

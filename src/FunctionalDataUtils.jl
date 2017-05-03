@@ -13,9 +13,8 @@ end
 FDU = FunctionalDataUtils
 export FDU
 
-using Reexport
 import FunctionalData.apply
-@reexport using FunctionalData, Colors
+using FunctionalData, Colors
 using SHA, Compat
 import FactCheck
 
@@ -27,7 +26,6 @@ end
 include("computing.jl")
 include("numerical.jl")
 include("computervision.jl")
-include("fmIO.jl")
 include("graphics.jl")
 include("machinelearning.jl")
 # include("matlab.jl")
