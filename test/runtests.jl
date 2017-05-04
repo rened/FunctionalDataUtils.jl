@@ -1,5 +1,5 @@
 println("Starting runtests.jl $(join(ARGS, " ")) ...")
-using FunctionalDataUtils, FactCheck
+using FunctionalData, FunctionalDataUtils, FactCheck, Colors
 FactCheck.setstyle(:compact)
 
 shouldtest(f, a) = length(ARGS) == 0 || in(a, ARGS) ? facts(f, a) : nothing
