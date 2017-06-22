@@ -3,6 +3,7 @@ export tryasfloat32, tryasfloat64, tryasint, fromimage
 export serve
 
 function exitwithteststatus()
+    eval(:(using FactCheck))
     s = FactCheck.getstats()
     if s["nNonSuccessful"] == 0
         print("   PASSED!")

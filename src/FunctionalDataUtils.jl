@@ -16,7 +16,6 @@ export FDU
 import FunctionalData.apply
 using FunctionalData, Colors
 using SHA, Compat
-import FactCheck
 
 isinstalled(a) = isa(Pkg.installed(a), VersionNumber)
 if isinstalled("Images")
