@@ -2,13 +2,18 @@ export disp, showdict, log, @log, setfilelogging, setlogfile, errorstring
 
 disp(x...) = println(join(map(string,x),", "))
 
-function showdict(a, indent = "")
+function showdict(a, desc = ""; indent::Int = 0)
+    const nindent = 2
+    if !isempty(desc)
+        println(desc*":")
+        indent += nindent
+    end
     sk = sort(collect(keys(a)))
     for k in sk
-        print("$(indent)$k: ")
+        print(repeat(" ", indent),"$k: ")
         if isa(a[k], Dict)
             println("")
-            showdict(a[k], indent*"  ")
+            showdict(a[k], indent = indent + nindent)
         else
             println("$(a[k])")
         end

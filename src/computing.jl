@@ -49,8 +49,8 @@ end
 fasthash(f::Function, args, version) = fasthash(Any[string(f), args..., version])
 
 
-cache(f::Function, f2::Function, args...) = error("cache(f,f2,...) not supported")
-function cache(f::Function, args...; version = "0 none set", kargs...)
+cache(f::FD.Callable, f2::FD.Callable, args...) = error("cache(f,f2,...) not supported")
+function cache(f::FD.Callable, args...; version = "0 none set", kargs...)
     mkpath("zzz")
     h = hash(fasthash([f; args; version; kargs]))
     filename = "zzz/$(string(f))-$h.jls"
@@ -70,7 +70,7 @@ function cache(f::Function, args...; version = "0 none set", kargs...)
         r
     end
 end
-cache(a,f::Function,args...; kargs...) = cache(f, Any[a, args...]...; kargs...)
+cache(a,f::FD.Callable,args...; kargs...) = cache(f, Any[a, args...]...; kargs...)
 
 
 function dictcache(f, args...; version = "0 none set", filepath = "cache.dictfile")
