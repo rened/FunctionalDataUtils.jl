@@ -1,4 +1,4 @@
-export disp, showdict, log, @log, setfilelogging, setlogfile, errorstring
+export disp, showdict, log, @log, setfilelogging, setlogfile, errorstring, savemv
 
 disp(x...) = println(join(map(string,x),", "))
 
@@ -57,4 +57,12 @@ function errorstring(e)
     buf = IOBuffer()
     showerror(buf, e, catch_backtrace())
     takebuf_string(buf)
+end
+
+savemv(a, filename::String, f::FD.Callable, args...) = savemv(a, f, filename, args...)
+function savemv(a, f::FD.Callable, filename::String, args...)
+    tmpfilename = @p concat filename "." randstring(20) ".savemv.temp"
+    f(a, tmpfilename, args...)
+    mv(tmpfilename, filename, remove_destination = true)
+    filename
 end
