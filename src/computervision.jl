@@ -1,4 +1,4 @@
-using MultivariateStats
+# using MultivariateStats
 
 export iimg, iimg!
 export interp3, interp3with01coords, resize, resizeminmax
