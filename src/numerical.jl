@@ -7,7 +7,7 @@ export pcawhitening, zcawhitening, WhiteningBase
 export clamp, clamp!
 export nanfunction, nanmean, nanstd, nanmedian
 export distance
-export randbase, randproj
+export randbase, randnormbase, randproj
 export mean_, std_, var_, min_, max_, sum_, median_
 
 
@@ -326,6 +326,8 @@ end
 distance(a::Number,b::Number) = abs(a-b)
 
 randbase(basedim, origdim) = randn(MersenneTwister(0), basedim, origdim)
+randnormbase(basedim, origdim) = @p randbase basedim origdim | transpose | map normeuclid | transpose
+
 randproj(a, targetdim::Int) = randbase(targetdim, sizem(a))*a
 
 squ(a) = squeeze(a,ndims(a))
