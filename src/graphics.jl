@@ -26,7 +26,7 @@ jetcolorshex(args...) = @p times jetcolors(args...) 255 | round UInt8 _ | map x-
 function asimagescrgb(a, norm = true)
     a = asfloat32(a)
     cm = jetcolormap(256)
-    r = Array(Float32, size(a, 1), size(a, 2), 3)
+    r = Array{Float32,3}(size(a, 1), size(a, 2), 3)
     normf = norm ? norm01 : identity
     b = round(Int, normf(a)*255) .+ 1
     r[:,:,1] = cm[1, b[:]]
@@ -37,11 +37,11 @@ end
 
 
 if isinstalled("Images")
-    function asimage{T}(a::Array{T,2})
+    function asimage(a::Array{T,2}) where T
         grayim(a')
     end
 
-    function asimage{T}(a::Array{T,3})
+    function asimage(a::Array{T,3}) where T
         colorim(permutedims(a,[3,2,1]))
     end
     asimagesc = asimage*asimagescrgb
@@ -67,7 +67,7 @@ function blocksvisu(a, padding = 0)
     r = @p riffle a z | row | flatten
 end
 
-function embedvisu{T<:Number,N}(a::Matrix, patches::DenseArray{T,N}, s = 2000)
+function embedvisu(a::Matrix, patches::DenseArray{T,N}, s = 2000) where {T<:Number,N}
     mi = minimum(a,2)
     ma = maximum(a,2)
     rm = rangem(patches)

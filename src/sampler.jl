@@ -1,6 +1,6 @@
 export makeSampler, Sampler, sample, sample!, call
 
-type Sampler
+mutable struct Sampler
     image::Array{Float32,2}
     ind::Array{Int,1}
     mi::Array{Int,2}
@@ -29,17 +29,13 @@ function makeSampler(image, bsize::Int, scale = 1.; centered::Bool = true, col::
     Sampler(image, ind, mi, ma, clampedpos, buf, normmeanstd)
 end
 
-@static if VERSION < v"0.5-"
-    call(a::Sampler, pos) = sample(pos, a)
-else
-    (a::Sampler)(pos) = sample(pos, a)
-end
+(a::Sampler)(pos) = sample(pos, a)
 
 sample(a::Sampler,b::Sampler) = error("Only one of the params can be a sampler.")
 sample(pos, a::Sampler) = sample!(a.buf, pos, a::Sampler)
 sample(a::Sampler, pos) = sample!(a.buf, pos, a::Sampler)
 
-function sample!(buf, pos::Array{Int,2}, a::Sampler)
+function sample!(buf, pos::AbstractArray{Int,2}, a::Sampler)
     c = @p clamp! a.clampedpos pos a.mi a.ma | subtoind a.image
     for i = 1:length(a.buf)
         buf[i] = a.image[c+a.ind[i]]

@@ -1,6 +1,12 @@
 export exitwithteststatus, asfloat16, asfloat32, asfloat64, asint, histdict, asdict
 export tryasfloat32, tryasfloat64, tryasint, fromimage
 export serve
+export round, ceil, floor
+
+import Base: round, ceil, floor
+round(T::Type, a::AbstractArray) = round.(T,a)
+ceil(T::Type, a::AbstractArray) = ceil.(T,a)
+floor(T::Type, a::AbstractArray) = floor.(T,a)
 
 function exitwithteststatus()
     eval(:(using FactCheck))
@@ -14,13 +20,19 @@ function exitwithteststatus()
     exit(s["nNonSuccessful"])
 end
 
-asint(a) = eltype(a)<:Integer ? a : round(Int, a)
+asint(a::Number) = round(Int, a)
+asint(a::AbstractArray) = asint.(a)
 asint(a::AbstractString) = parse(Int, a)
+
 asfloat16(a) = eltype(a) == Float16 ? a : map(Float16, a)
+
 asfloat32(a) = eltype(a) == Float32 ? a : map(Float32, a)
 asfloat32(a::AbstractString) = parse(Float32, a)
+
+
+
 if isinstalled("Images")
-    function asfloat32{T<:AbstractImage}(a::T)
+    function asfloat32(a::T) where {T<:AbstractImage}
         a = raw(a)
         if ndims(a) == 3
             a = permutedims(a,[3,2,1])
@@ -35,9 +47,9 @@ end
 asfloat64(a) = map(Float64, a)
 asfloat64(a::AbstractString) = parse(Float64, a)
 
-tryasint(a, d = a) = try asint(a) catch return d end
-tryasfloat32(a, d = a) = try asfloat32(a) catch return d end
-tryasfloat64(a, d = a) = try asfloat64(a) catch return d end
+tryasint(a, d = a) = try asint(a) catch; return d end
+tryasfloat32(a, d = a) = try asfloat32(a) catch; return d end
+tryasfloat64(a, d = a) = try asfloat64(a) catch; return d end
 
 histdict(a, field) = @p extract a field | histdict
 function histdict(a)
@@ -47,7 +59,7 @@ function histdict(a)
 end
 
 asdict(a) = @p fieldnames a | map (x->Pair(x,getfield(a,x))) | Dict
-asdict{T<:Union{Dict,AbstractString,Array}}(a::T) = a
+asdict(a::T) where {T<:Union{Dict,AbstractString,Array}} = a
 
 function serve(basepath::AbstractString, args...;kargs...)
     basepath = abspath(basepath)

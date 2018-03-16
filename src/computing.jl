@@ -15,21 +15,18 @@ macro timedone(a, ex)
 end
 
 
-fasthash{T<:Number}(a::Array{T}) = bytes2hex(eltype(a)!=UInt8 ? sha256(reinterpret(UInt8, vec(a))) : sha256(a))
+# OPTIM remove collect:
+fasthash(a::Array{T}) where {T<:Number} = bytes2hex(eltype(a)!=UInt8 ? sha256(collect(reinterpret(UInt8, vec(a)))) : sha256(a))
 
 fasthash(a::Number) = fasthash(Any[[a], "__julianumber"])
-if VERSION.minor == 3
-    fasthash(a::Char) = fasthash(Any[utf8(string(a)), "__juliachar"])
-else
-    fasthash(a::Char) = fasthash(Any[string(a), "__juliachar"])
-end
+fasthash(a::Char) = fasthash(Any[string(a), "__juliachar"])
 fasthash(a::AbstractString) = bytes2hex(sha256(a))
 fasthash(a::Symbol) = fasthash(Any[string(a),"__juliasymbol"])
 fasthash(a::Tuple) = fasthash(Any[a..., "__juliatuple"])
 fasthash(f::Function) = fasthash(Any[string(f), "__juliafunction"])
 fasthash(a::UnitRange) = fasthash(Any[a.start, a.stop, "__juliaunitrange"])
-fasthash(a::Range) = fasthash(Any[a.start, a.step, a.stop, "__juliarange"])
-fasthash(a::FloatRange) = fasthash(Any[a.start, a.step, a.len, a.divisor, "__juliafloatrange"])
+fasthash(a::AbstractRange) = fasthash(Any[a.start, a.step, a.stop, "__juliarange"])
+fasthash(a::StepRangeLen) = fasthash(Any[a.ref, a.step, a.len, a.offset, "__juliafloatrange"])
 fasthash(a::Bool) = fasthash("$(a)_juliabool")
 fasthash(a) = fasthash(repr(a))
 

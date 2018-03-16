@@ -15,15 +15,15 @@ export mean_, std_, var_, min_, max_, sum_, median_
 ##  normsum, norm01, normeuclid, normmeanstd
 ##  normsum!, norm01!, normeuclid!, normmeanstd!
 
-copyfloat{T<:Int}(a::Array{T}) = float(a)
-copyfloat{T}(a::Array{T}) = copy(a)
+copyfloat(a::Array{T}) where {T<:Int} = float(a)
+copyfloat(a::Array{T}) where {T} = copy(a)
 
 normsum(a) = normsum!(copyfloat(a))
 function normsum!(r)
     a = sum(r)
     a == 0 && return r
     for i = 1:length(r)
-        r[i] ./= a
+        r[i] /= a
     end
     r
 end
@@ -109,12 +109,12 @@ end
 import Base.maximum
 maximum_ = maximum
 maximum(f::Function, g::Function) = error("not defined")
-maximum(x::Array,f::Function) = @p map x f | indmax | at x _
+maximum(x::Array,f::Function) = @p map x f | argmax | at x _
 
 import Base.minimum
 minimum_ = minimum
 minimum(f::Function, g::Function) = error("not defined")
-minimum(x::Array,f::Function) = @p map x f | indmin | at x _
+minimum(x::Array,f::Function) = @p map x f | argmin | at x _
 
 function valuemap(a, m::Dict, default = 0)
     map(x->get(m,x,default),a)
@@ -124,7 +124,7 @@ function unvaluemap(a, m::Dict, default = 0)
 end
 
 function valuemap(data, mapping)
-    r = Array(promote_type(eltype(mapping),eltype(data)),size(data))
+    r = Array{promote_type(eltype(mapping),(eltype(data))), ndims(data)}(size(data))
     for i = 1:length(data)
         v = data[i]
         if !isa(v,Number) || (!isnan(v) && v>0)
@@ -140,9 +140,10 @@ function valuemap(data, mapping)
 end
 
 import Base.clamp, Base.clamp!
-clamp{T}(a::Array{T}, mi::Union{Array,Tuple}, ma::Union{Array,Tuple}) = (r = Base.copy(a); clamp!(r, r, mi, ma); r)
-clamp!{T}(a::Array{T,2}, mi::Union{Array,Tuple}, ma::Union{Array,Tuple}) = clamp!(a, a, mi, ma)
-function clamp!{T}(r::Array{T,2}, a::Array{T,2}, mi::Union{Array,Tuple}, ma::Union{Array,Tuple})
+clamp(a::AbstractArray, mi::Number, ma::Number) = clamp.(a, mi, ma)
+clamp(a::AbstractArray{T}, mi::Union{AbstractArray,Tuple}, ma::Union{AbstractArray,Tuple}) where {T} = (r = Base.copy(a); clamp!(r, r, mi, ma); r)
+clamp!(a::AbstractArray{T,2}, mi::Union{AbstractArray,Tuple}, ma::Union{AbstractArray,Tuple}) where {T} = clamp!(a, a, mi, ma)
+function clamp!(r::AbstractArray{T,2}, a::AbstractArray{T,2}, mi::Union{AbstractArray,Tuple}, ma::Union{AbstractArray,Tuple}) where {T}
     if !(size(a,1)==length(mi)==length(ma))
         error("clamp!: size(a,1)==length(mi)==length(ma) was false: $(size(a,1))==$(length(mi))==$(length(ma))")
     end
@@ -162,14 +163,14 @@ function clamp!(r, a, mi, ma)
     end
     r
 end
-clamp(a, v::Array) = clamp(a, ones(ndims(v),1), siz(v))
+clamp(a, v::AbstractArray) = clamp(a, ones(ndims(v),1), siz(v))
 
-function nanfunction{T}(f,a::Array{T,2},dim)
+function nanfunction(f,a::Array{T,2},dim) where {T}
   if dim == 1
     r = NaN*zeros(1,size(a,2))
     for n = 1:size(a,2)
       v = a[:,n]
-      v = v[!isnan(v)]
+      v = v[flipbits!(isnan.(v))]
       if !isempty(v)
         r[1,n] = f(v)
       end
@@ -179,7 +180,7 @@ function nanfunction{T}(f,a::Array{T,2},dim)
     r = NaN*zeros(size(a,1),1)
     for m = 1:size(a,1)
       v = a[m,:]
-      v = v[!isnan(v)]
+      v = v[flipbits!(isnan.(v))]
       if !isempty(v)
         r[m,1] = f(v)
       end
@@ -189,7 +190,7 @@ function nanfunction{T}(f,a::Array{T,2},dim)
     error("dim must be 1 or 2")
   end
 end
-nanfunction(f,a) = f(a[!isnan(a)])
+nanfunction(f,a) = f(a[flipbits!(isnan.(a))])
 nanmedian(a) = nanfunction(median,a)
 nanmedian(a,dim) = nanfunction(median,a,dim)
 nanmean(a) = nanfunction(mean,a)
@@ -197,7 +198,7 @@ nanmean(a,dim) = nanfunction(mean,a,dim)
 nanstd(a) = nanfunction(std,a)
 nanstd(a,dim) = nanfunction(std,a,dim)
 
-# function nanfunction{T}(f,a::Array{T,3},dim)
+# function nanfunction(f,a::Array{T,3},dim) where {T}
 #   if dim == 1
 #     r = NaN*zeros(1,size(a,2),size(a,3))
 #     for n = 1:size(a,2), o = 1:size(a,3)
@@ -249,7 +250,7 @@ nanstd(a,dim) = nanfunction(std,a,dim)
 # @test_equal nanmean(d,2) mean(d,2)
 # @test_equal nanmean(d,3) mean(d,3)
 
-type WhiteningBase
+mutable struct WhiteningBase
     mean
     base
     vars
@@ -263,7 +264,7 @@ function zcawhitening(a; kargs...)
 end
 
 pcawhitening(a, base = []; kargs...) = zcawhitening(a, base; pcawhitening = true, kargs...)
-function zcawhitening{T<:Real}(a::Array{T}, base = [];  perpatchnormalization = false, pcawhitening = false, keepvar = 0.95)
+function zcawhitening(a::Array{T}, base = [];  perpatchnormalization = false, pcawhitening = false, keepvar = 0.95) where {T<:Real}
     # a ... nDim x nSamples
     if perpatchnormalization
         a = a .- mean(a,1)
@@ -281,7 +282,7 @@ function zcawhitening{T<:Real}(a::Array{T}, base = [];  perpatchnormalization = 
     end
     coeff = base.base' * (a .- base.mean)
     S = base.vars
-    r = diagm(1./sqrt(base.vars .+ 1e-5)) * coeff
+    r = diagm(1 ./sqrt(base.vars .+ 1e-5)) * coeff
     if !pcawhitening
         r = base.base * r
     end
@@ -290,7 +291,7 @@ end
 
 
 distance(a) = distance(a,a)
-function distance{T}(a::Vector{T},b::Vector{T})
+function distance(a::Vector{T},b::Vector{T}) where {T}
     r = zero(eltype(a))
     for i = 1:length(a)
         r += (a[i]-b[i])^2
@@ -298,10 +299,10 @@ function distance{T}(a::Vector{T},b::Vector{T})
     sqrt(r)
 end
 
-distance{T1,T2}(a::AbstractArray{T1,1},b::AbstractArray{T2,2}) = distance(col(a),b)
-distance{T1,T2}(a::AbstractArray{T1,2},b::AbstractArray{T2,1}) = distance(a,col(b))
+distance(a::AbstractArray{T1,1},b::AbstractArray{T2,2}) where {T1,T2} = distance(col(a),b)
+distance(a::AbstractArray{T1,2},b::AbstractArray{T2,1}) where {T1,T2} = distance(a,col(b))
 
-function distance{T1,T2}(a::AbstractArray{T1,2},b::AbstractArray{T2,2})
+function distance(a::AbstractArray{T1,2},b::AbstractArray{T2,2}) where {T1,T2}
     #% Author   : Roland Bunschoten
     #%            University of Amsterdam
     #%            Intelligent Autonomous Systems (IAS) group
@@ -319,9 +320,9 @@ function distance{T1,T2}(a::AbstractArray{T1,2},b::AbstractArray{T2,2})
     #% post by Oliver Woodford (Nov 2008)
     #% on http://www.mathworks.com/matlabcentral/fileexchange/71
 
-    aa = sum(a.*a,[1])
-    bb = sum(b.*b,[1])
-    sqrt(abs((aa' .+ bb) - 2*a'*b))
+    aa = sum(a.*a, dims = 1)
+    bb = sum(b.*b, dims = 1)
+    sqrt.(abs.((aa' .+ bb) - 2*a'*b))
 end
 distance(a::Number,b::Number) = abs(a-b)
 

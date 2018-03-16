@@ -2,6 +2,8 @@ __precompile__()
 
 module FunctionalDataUtils
 
+using Pkg
+
 LOGFILE = ""
 LOGTOFILE = false
 
@@ -28,7 +30,6 @@ include("computervision.jl")
 include("graphics.jl")
 include("machinelearning.jl")
 # include("matlab.jl")
-include("numerical.jl")
 include("output.jl")
 include("utils.jl")
 include("system.jl")
