@@ -26,7 +26,7 @@ jetcolorshex(args...) = @p times jetcolors(args...) 255 | round UInt8 _ | map x-
 function asimagescrgb(a, norm = true)
     a = asfloat32(a)
     cm = jetcolormap(256)
-    r = Array{Float32,3}(size(a, 1), size(a, 2), 3)
+    r = Array{Float32,3}(undef, size(a, 1), size(a, 2), 3)
     normf = norm ? norm01 : identity
     b = round(Int, normf(a)*255) .+ 1
     r[:,:,1] = cm[1, b[:]]
@@ -56,7 +56,7 @@ function blocksvisu(a, padding = 0)
     try
         a = @p map a reshape | unstack
     end
-    @p mapvec a size | uniq | len | isequal 1 | assert
+    @assert @p mapvec a size | uniq | len | isequal 1
     if ndims(fst(a))==3
         return @p map (1:3) (i->@p map a at i | blocksvisu padding) | stack
     end

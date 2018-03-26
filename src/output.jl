@@ -3,7 +3,7 @@ export disp, showdict, log, @log, setfilelogging, setlogfile, errorstring, savem
 disp(x...) = println(join(map(string,x),", "))
 
 function showdict(a, desc = ""; indent::Int = 0)
-    const nindent = 2
+    nindent = 2
     if !isempty(desc)
         println(desc*":")
         indent += nindent
@@ -31,11 +31,11 @@ function setlogfile(a::AbstractString)
 end
 
 import Base.log                                              
-log(a::AbstractString, args...; kargs...) = log(STDOUT, a, args...; kargs...)
+log(a::AbstractString, args...; kargs...) = log(stdout, a, args...; kargs...)
 function log(io::IO, a::AbstractString, args...; indent = 0, tofile = [], toSTDOUT = true)
     buf = IOBuffer()
     println(buf, Libc.strftime("%Y-%m-%d %T %z %Z", time()), "  |  ", repeat("  ", indent), join([a, args...], " "))
-    str = takebuf_string(buf)
+    str = String(take!(buf))
 
     toSTDOUT && println(io, str[end] == '\n' ? str[1:end-1] : str)
     if (tofile == [] && LOGTOFILE) || tofile == true || isa(tofile, AbstractString)
@@ -56,7 +56,7 @@ end
 function errorstring(e)
     buf = IOBuffer()
     showerror(buf, e, catch_backtrace())
-    takebuf_string(buf)
+    String(take!(buf))
 end
 
 savemv(a, filename::String, f::FD.Callable, args...) = savemv(a, f, filename, args...)

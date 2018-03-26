@@ -54,7 +54,7 @@ function normeuclid!(r)
 
     if a > 0
         for i = 1:length(r)
-            r[i] ./= a
+            r[i] /= a
         end
     end
     r
@@ -64,7 +64,7 @@ normmean(a) = normmean!(copyfloat(a))
 function normmean!(r)
     a = mean(r)
     for i = 1:length(r)
-        r[i] ./= a
+        r[i] /= a
     end
     r
 end
@@ -87,7 +87,7 @@ end
 normquantile(a, q1, q2) = normquantile(a, [q1,q2])
 function normquantile(a, q = [0.1, 0.9])
     qs = quantile(vec(a), q) 
-    clamp((a-qs[1])/(qs[2]-qs[1])*(q[2]-q[1])+q[1], 0, 1)
+    clamp((a .- qs[1]) ./ (qs[2]-qs[1]) .* (q[2]-q[1]) .+ q[1], 0, 1)
 end
 
 function normunique(a)  # FIXME
@@ -124,7 +124,7 @@ function unvaluemap(a, m::Dict, default = 0)
 end
 
 function valuemap(data, mapping)
-    r = Array{promote_type(eltype(mapping),(eltype(data))), ndims(data)}(size(data))
+    r = Array{promote_type(eltype(mapping),(eltype(data))), ndims(data)}(undef,size(data))
     for i = 1:length(data)
         v = data[i]
         if !isa(v,Number) || (!isnan(v) && v>0)

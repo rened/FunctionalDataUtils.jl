@@ -5,11 +5,11 @@ macro timedone(a, ex)
     quote
         local t = time()
         println($a, " ... ")
-        flush(STDOUT)
+        flush(stdout)
         r = $ex
         local elapsed = round((time()-t)*100)/100
         println("    done, $elapsed sec!")
-        flush(STDOUT)
+        flush(stdout)
         r
     end
 end
@@ -82,7 +82,7 @@ function dictcache(f, args...; version = "0 none set", filepath = "cache.dictfil
               r = f(args...)
               cache[key...] = r
               #@show keys(cache, key[1:end-1])
-              assert(in(key[end], keys(cache, key[1:end-1]...)))
+              @assert in(key[end], keys(cache, key[1:end-1]...))
               r
             end
         end

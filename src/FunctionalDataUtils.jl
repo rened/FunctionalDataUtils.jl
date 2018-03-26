@@ -2,7 +2,7 @@ __precompile__()
 
 module FunctionalDataUtils
 
-using Pkg
+using Pkg, Distributed
 
 LOGFILE = ""
 LOGTOFILE = false

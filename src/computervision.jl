@@ -511,7 +511,7 @@ function border(a::Array{T,3}) where T
     a = asfloat32(a)
     r = zeros(size(a))
     for md in -1:1, nd in -1:1, od in -1:1
-        r[2:end-1, 2:end-1, 2:end-1] = r[2:end-1, 2:end-1, 2:end-1] + (a[(2:end-1)+md, (2:end-1)+nd, (2:end-1)+od] .== 0)
+        r[2:end-1, 2:end-1, 2:end-1] = r[2:end-1, 2:end-1, 2:end-1] .+ (a[(2:end-1) .+ md, (2:end-1) .+ nd, (2:end-1) .+ od] .== 0)
     end
     map(eltype(a), (a .> 0) .& (r .> 0))
 end

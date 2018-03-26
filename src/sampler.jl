@@ -22,8 +22,8 @@ function makeSampler(image, bsize::Int, scale = 1.; centered::Bool = true, col::
     buf = zeros(eltype(image), patchsize)
     if col buf = FunctionalData.col(buf) end
     
-    mi = ones(Int,ndims(image),1) - minimum(grid,2) + 1
-    ma = siz(image) - maximum(grid,2) + 1
+    mi = ones(Int,ndims(image),1) .- minimum(grid, dims = 2) .+ 1
+    ma = siz(image) .- maximum(grid, dims = 2) .+ 1
     clampedpos = zeros(Int, size(mi))
 
     Sampler(image, ind, mi, ma, clampedpos, buf, normmeanstd)
@@ -32,8 +32,8 @@ end
 (a::Sampler)(pos) = sample(pos, a)
 
 sample(a::Sampler,b::Sampler) = error("Only one of the params can be a sampler.")
-sample(pos, a::Sampler) = sample!(a.buf, pos, a::Sampler)
-sample(a::Sampler, pos) = sample!(a.buf, pos, a::Sampler)
+sample(pos::AbstractArray{T,2}, a::Sampler) where T<:Integer = sample!(a.buf, pos, a::Sampler)
+sample(a::Sampler, pos::AbstractArray{T,2}) where T<:Integer = sample!(a.buf, pos, a::Sampler)
 
 function sample!(buf, pos::AbstractArray{Int,2}, a::Sampler)
     c = @p clamp! a.clampedpos pos a.mi a.ma | subtoind a.image
