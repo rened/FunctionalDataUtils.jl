@@ -1,12 +1,12 @@
 export ncores, nphysicalcores, systemload, normload, setnumworkers
 
-@static if Sys.isapple() ncores() = asint(readall(`sysctl -n hw.ncpu`)) end
-@static if Sys.isapple() nphysicalcores() = asint(readall(`sysctl -n hw.physicalcpu`)) end
-@static if Sys.islinux() ncores() = asint(readall(`nproc --all`)) end
+@static if Sys.isapple() ncores() = asint(read(`sysctl -n hw.ncpu`, String)) end
+@static if Sys.isapple() nphysicalcores() = asint(read(`sysctl -n hw.physicalcpu`, String)) end
+@static if Sys.islinux() ncores() = asint(read(`nproc --all`, String)) end
 @static if Sys.islinux() nphysicalcores() = div(ncores(),2) end
 
 rmcomma(a) = a[end]==',' ? a[1:end-1] : a
-systemload() = parsefloat(rmcomma(split(readall(`uptime`))[end-2]))
+systemload() = parsefloat(rmcomma(split(read(`uptime`, String))[end-2]))
 normload() = systemload()/ncores()
  
 function setnumworkers(n)

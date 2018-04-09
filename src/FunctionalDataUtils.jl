@@ -16,7 +16,7 @@ FDU = FunctionalDataUtils
 export FDU
 
 import FunctionalData.apply
-using FunctionalData, Colors
+using FunctionalData#, Colors
 using SHA, Compat
 
 isinstalled(a) = isa(Pkg.installed(a), VersionNumber)
