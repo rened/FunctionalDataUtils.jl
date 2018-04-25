@@ -48,7 +48,7 @@ function iimg!(a::AbstractArray{T,3}) where {T}
     end
 end
 
-function interp3(a::Array{T,NN}, m_::T2, n_::T2, o_::T2) where {T,NN,T2<:AbstractFloat}
+function interp3(a::AbstractArray{T,NN}, m_::T2, n_::T2, o_::T2) where {T,NN,T2<:AbstractFloat}
     # if m_<1 || n_<1 || o_<1 || m_>size(a,1) || n_>size(a,2) || o_>size(a,3) 
     #   # @show m_ n_ o_ size(a)
     #   error("interp3: index out of bounds: [$m_, $n_, $o_], size(a) == $(size(a)::Tuple{Int,Int,Int})")
@@ -93,7 +93,7 @@ resize(a, factor::Int; kargs...) = resize(a, asint(factor*siz(a)); kargs...)
 resize(a, factor::Number; kargs...) = resize(a, asint(factor*siz(a)); kargs...)
 
 # method: :nearest or :interp
-function resize(a::Array{T}, s::AbstractArray; method = :interp) where {T<:Real}
+function resize(a::AbstractArray{T}, s::AbstractArray; method = :interp) where {T<:Real}
     ndims(a) == 3 && sizeo(a) == 3 && length(s) == 2 && return map(a, x->resize(x,s; method = method))
 
     if size(a) == tuple(s...)
@@ -204,23 +204,23 @@ function monogrid(rm,rn,ro)
     o = [o for m in rm, n in rn, o in ro]
     return (m,n,o)
 end
-monogrid(a::Array{T,2}) where {T} = monogrid(1:size(a,1), 1:size(a,2))
-monogrid(a::Array{T,3}) where {T} = monogrid(1:size(a,1), 1:size(a,2), 1:size(a,3))
+monogrid(a::AbstractArray{T,2}) where {T} = monogrid(1:size(a,1), 1:size(a,2))
+monogrid(a::AbstractArray{T,3}) where {T} = monogrid(1:size(a,1), 1:size(a,2), 1:size(a,3))
 
 meshgrid(a::Tuple) = meshgrid(a...)
-meshgrid(a::Array) = meshgrid(size(a)...)
-meshgrid(a::Int, v::Array) = meshgrid(repeat([a], ndims(v))...)
+meshgrid(a::AbstractArray) = meshgrid(size(a)...)
+meshgrid(a::Int, v::AbstractArray) = meshgrid(repeat([a], ndims(v))...)
 meshgrid(sm::Int, sn::Int) = meshgrid(1:sm, 1:sn)
 meshgrid(sm::Int, sn::Int, so::Int) = meshgrid(1:sm, 1:sn, 1:so)
 meshgrid(rm::AbstractArray, rn::AbstractArray) = [row([m for m in rm, n in rn]); row([n for m in rm, n in rn])]
 meshgrid(rm::AbstractArray, rn::AbstractArray, ro::AbstractArray) = [row([m for m in rm, n in rn, o in ro]); row([n for m in rm, n in rn, o in ro]); row([o for m in rm, n in rn, o in ro])]
 
-meshgrid3(a::Array{T,2}) where {T} = meshgrid(reshape(a, size(a,1), size(a,2), 1))
-meshgrid3(a::Array{T,3}) where {T} = meshgrid(a)
+meshgrid3(a::AbstractArray{T,2}) where {T} = meshgrid(reshape(a, size(a,1), size(a,2), 1))
+meshgrid3(a::AbstractArray{T,3}) where {T} = meshgrid(a)
 
 centeredmeshgrid(a...) = let r = meshgrid(a...); ceil.(Int, r .- mean(r, dims = 2)) end
 
-function imregionalmin(img::Array{T,2}) where {T}
+function imregionalmin(img::AbstractArray{T,2}) where {T}
     r = falses(size(img))
     for n = 2:size(img,2)-1, m = 2:size(img,1)-1
         v = img[m,n]
@@ -230,7 +230,7 @@ function imregionalmin(img::Array{T,2}) where {T}
     end
     r
 end
-function imregionalmin(img::Array{T,3}) where T
+function imregionalmin(img::AbstractArray{T,3}) where T
     r = falses(size(img))
     for o = 2:size(img,3)-1, n = 2:size(img,2)-1, m = 2:size(img,1)-1
         v = img[m,n,o]
@@ -247,7 +247,7 @@ imregionalmax(img) = imregionmin(-float(img))
 
 monogen(img, spacing) = monogen_(asfloat32(img), asfloat32(spacing*2))
 
-function monogen_(img::Array{Float32,2}, wavelength::Float32)
+function monogen_(img::AbstractArray{Float32,2}, wavelength::Float32)
     Base.FFTW.set_num_threads(nphysicalcores())
 
     myfft = fft
@@ -295,7 +295,7 @@ end
 
 
 
-function monogen_(img::Array{Float32,3}, wavelength::Float32)
+function monogen_(img::AbstractArray{Float32,3}, wavelength::Float32)
     if size(img,3)==1
         return monogen_(img[:,:,1], wavelength)
     end
@@ -420,9 +420,9 @@ end
 
 
 #monoslic(img, spacing; kargs...) = monoslic(asfloat32(img), asfloat32(spacing); kargs...)
-#function monoslic(img::Array{Float32}, spacing::Float32; workers = Base.workers())
+#function monoslic(img::AbstractArray{Float32}, spacing::Float32; workers = Base.workers())
 monoslic(img, spacing; kargs...) = monoslic(asfloat32(img), asfloat32(spacing))
-function monoslic(img::Array{Float32}, spacing::Float32)
+function monoslic(img::AbstractArray{Float32}, spacing::Float32)
     println("computing monogen")
     @time M = monogen(img,spacing) 
 
@@ -456,7 +456,7 @@ function monoslic(img::Array{Float32}, spacing::Float32)
     newcenters = zeros(Float32, size(centers))
     (_, csm, csn, cso) = size(newcenters)
 
-    myind2sub(a::Array{T,2},i) where {T} = ((m,n)=ind2sub(size(a),i);(m,n,1))
+    myind2sub(a::AbstractArray{T,2},i) where {T} = ((m,n)=ind2sub(size(a),i);(m,n,1))
     myind2sub(a,i) = ind2sub(size(a),i)
     for c = cand
         (m,n,o) = myind2sub(M,c)
@@ -506,8 +506,8 @@ function monoslic(img::Array{Float32}, spacing::Float32)
     asint(labels[asint(sv)])
 end
 
-border(a::Array{T,2}) where {T} = @p border cat(3,a,a,a) | snd
-function border(a::Array{T,3}) where T
+border(a::AbstractArray{T,2}) where {T} = @p border cat(3,a,a,a) | snd
+function border(a::AbstractArray{T,3}) where T
     a = asfloat32(a)
     r = zeros(size(a))
     for md in -1:1, nd in -1:1, od in -1:1
@@ -533,7 +533,7 @@ function sortcoords(coords)
     r
 end
 
-bwdist(a::Array) = @p bwdist findsub(a) meshgrid(a) | reshape siz(a)
+bwdist(a::AbstractArray) = @p bwdist findsub(a) meshgrid(a) | reshape siz(a)
 function bwdist(a, pos) 
     if size(a,1) == size(pos,1)
         @p map pos x->minimum(distance(x,a))
@@ -542,7 +542,7 @@ function bwdist(a, pos)
     end
 end
 
-function blocks(pos::Array{T1,2}, a::Array{T2,N}; blocksize = 32,
+function blocks(pos::AbstractArray{T1,2}, a::AbstractArray{T2,N}; blocksize = 32,
                 scale = 1,
                 grid = round.(Int, scale .* centeredmeshgrid(repeat(blocksize, ndims(a))...)),
     borderstyle = :staysinside, precompute = false) where {T1,T2,N}
@@ -567,7 +567,7 @@ function blocks(pos::Array{T1,2}, a::Array{T2,N}; blocksize = 32,
     precompute ? (r, (inds, mi, ma, borderstyle)) : r
 end
 
-function blocks!!(r::Matrix{T}, pos::Matrix{Int}, a::Matrix{T}, inds::Array{Int}, mi, ma, borderstyle) where {T}
+function blocks!!(r::Matrix{T}, pos::Matrix{Int}, a::Matrix{T}, inds::AbstractArray{Int}, mi, ma, borderstyle) where {T}
     if borderstyle == :staysinside
         pos = @p clamp! pos mi ma
         blockssample_internal!(r,pos,a,inds)
@@ -577,7 +577,7 @@ function blocks!!(r::Matrix{T}, pos::Matrix{Int}, a::Matrix{T}, inds::Array{Int}
     r
 end
 
-function blockssample_internal!(r, pos::Array{Int,2}, a::Array{T,2}, inds::Array{Int,1}) where {T}
+function blockssample_internal!(r, pos::AbstractArray{Int,2}, a::AbstractArray{T,2}, inds::AbstractArray{Int,1}) where {T}
     for n = 1:len(pos)
         posind = sizem(a)*(pos[2,n]-1) + pos[1,n]
         for m = 1:length(inds)
@@ -586,8 +586,8 @@ function blockssample_internal!(r, pos::Array{Int,2}, a::Array{T,2}, inds::Array
     end
 end
 
-cutbox(ind, a::Array{T,2}) where {T} = a[ind[1,1]:ind[1,2],ind[2,1]:ind[2,2]]
-cutbox(ind, a::Array{T,3}) where {T} = a[ind[1,1]:ind[1,2],ind[2,1]:ind[2,2],:]
+cutbox(ind, a::AbstractArray{T,2}) where {T} = a[ind[1,1]:ind[1,2],ind[2,1]:ind[2,2]]
+cutbox(ind, a::AbstractArray{T,3}) where {T} = a[ind[1,1]:ind[1,2],ind[2,1]:ind[2,2],:]
 
 function rle(a)
     r = Dict()
@@ -635,9 +635,9 @@ function unrle(a::Dict)
     r
 end
 
-stridedblocksub(a::Array{T,2}, blocksize::Number, stride = blocksize; kargs...) where {T} = stridedblocksub(a, blocksize .* ones(Int,2,1), stride; kargs...)
+stridedblocksub(a::AbstractArray{T,2}, blocksize::Number, stride = blocksize; kargs...) where {T} = stridedblocksub(a, blocksize .* ones(Int,2,1), stride; kargs...)
 
-function stridedblocksub(a::Array{T,2}, blocksiz, stride = blocksiz; keepshape = false) where {T}
+function stridedblocksub(a::AbstractArray{T,2}, blocksiz, stride = blocksiz; keepshape = false) where {T}
     if length(stride) == 1
         stride = asint(stride) .* ones(Int,2,1)
     end
@@ -653,9 +653,9 @@ function stridedblocksub(a::Array{T,2}, blocksiz, stride = blocksiz; keepshape =
     keepshape ? r : row(r)
 end
 
-stridedblocksub(a::Array{T,3}, blocksize::Number, stride = blocksize; kargs...) where {T} = stridedblocksub(a, blocksize*ones(Int,3,1); kargs...)
+stridedblocksub(a::AbstractArray{T,3}, blocksize::Number, stride = blocksize; kargs...) where {T} = stridedblocksub(a, blocksize*ones(Int,3,1); kargs...)
 
-function stridedblocksub(a::Array{T,3}, blocksiz, stride = blocksiz; keepshape = false) where {T}
+function stridedblocksub(a::AbstractArray{T,3}, blocksiz, stride = blocksiz; keepshape = false) where {T}
     if length(stride) == 1
         stride = asint(stride) .* ones(Int,3,1)
     end
@@ -687,9 +687,9 @@ function inpolygon(m::Int, n::Int, polygon)
 
     oddnodes
 end
-poly2mask(polygon::Array{T,2},m::Int,n::Int) where {T} = poly2mask(polygon, 1:m, 1:n)
-poly2mask(polygon::Array{T,2},img::Array{T,2}) where {T} = poly2mask(polygon, 1:size(img,1), 1:size(img,2))
-poly2mask(polygon::Array{T,2},M::AbstractArray,N::AbstractArray) where {T} = Float32[inpolygon(m,n,polygon) for m in M, n in N]
+poly2mask(polygon::AbstractArray{T,2},m::Int,n::Int) where {T} = poly2mask(polygon, 1:m, 1:n)
+poly2mask(polygon::AbstractArray{T,2},img::AbstractArray{T,2}) where {T} = poly2mask(polygon, 1:size(img,1), 1:size(img,2))
+poly2mask(polygon::AbstractArray{T,2},M::AbstractArray,N::AbstractArray) where {T} = Float32[inpolygon(m,n,polygon) for m in M, n in N]
 
 function inpointcloud(point, cloud, n = 8)
     nearest = at(cloud, argmin(distance(point,cloud)))
@@ -776,11 +776,11 @@ function warp(img, from, to, targetsize = siz(img)[1:2]; alpha = 2)
     ndims(img) == 2 ? f(img) : map(img,f)
 end
 
-function rotate(a::Array{T,3}, args...; kargs...) where {T}
+function rotate(a::AbstractArray{T,3}, args...; kargs...) where {T}
     @p map a x->rotate(x,args...; kargs...)
 end
 
-function rotate(a::Array{T,2}, alpha; background = zero(T)) where {T}
+function rotate(a::AbstractArray{T,2}, alpha; background = zero(T)) where {T}
     r = background*ones(T,sizem(a)+2,sizen(a)+2)
     r[2:end-1,2:end-1] = a
     c = centeredmeshgrid(r)

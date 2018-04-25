@@ -1,5 +1,5 @@
 export jetcolormap, asimage, asimagesc, asimagescrgb, blocksvisu, pad, image2array, poly2mask, embedvisu
-export jetcolors, jetcolorshex #, jetcolorants   # uncommented until Colors works on 0.7
+export jetcolors, jetcolorshex, jetcolorants
 export aslogimage
 
 function jetcolormap(n)
@@ -20,8 +20,7 @@ function jetcolors(a,mi,ma, n = 101)
     @p collect a | minus mi | divby (ma-mi+eps()) | clamp 0. 1. | times 99.9 | plus 1 | round Int _ | part j _
 end
 jetcolors(a, args...) = jetcolors(a, minimum(a), maximum(a)+0.01)
-# uncommented until Colors works on 0.7
-# jetcolorants(a...) = mapvec(jetcolors(a...),x->RGB(x[1],x[2],x[3]))
+jetcolorants(a...) = mapvec(jetcolors(a...),x->RGB(x[1],x[2],x[3]))
 jetcolorshex(args...) = @p times jetcolors(args...) 255 | round UInt8 _ | map x->@p vec x | bytes2hex | (x->"#$x") 
 
 function asimagescrgb(a, norm = true)
@@ -38,12 +37,12 @@ end
 
 
 if isinstalled("Images")
-    function asimage(a::Array{T,2}) where T
-        grayim(a')
+    function asimage(a::AbstractArray{T,2}) where T
+        colorview(Gray, a)
     end
 
-    function asimage(a::Array{T,3}) where T
-        colorim(permutedims(a,[3,2,1]))
+    function asimage(a::AbstractArray{T,3}) where T
+        colorview(RGB, permutedims(a,[3,1,2]))
     end
     asimagesc = asimage*asimagescrgb
 end
@@ -68,7 +67,7 @@ function blocksvisu(a, padding = 0)
     r = @p riffle a z | row | flatten
 end
 
-function embedvisu(a::Matrix, patches::DenseArray{T,N}, s = 2000) where {T<:Number,N}
+function embedvisu(a::Matrix, patches::AbstractArray{T,N}, s = 2000) where {T<:Number,N}
     mi = minimum(a,2)
     ma = maximum(a,2)
     rm = rangem(patches)
