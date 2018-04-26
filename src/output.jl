@@ -2,20 +2,22 @@ export disp, showdict, log, @log, setfilelogging, setlogfile, errorstring, savem
 
 disp(x...) = println(join(map(string,x),", "))
 
-function showdict(a, desc = ""; indent::Int = 0)
+
+showdict(a::AbstractDict, args...; kargs...) = showdict(stdout, a, args..., kargs...)
+function showdict(io::IO, a::AbstractDict, desc = ""; indent::Int = 0)
     nindent = 2
     if !isempty(desc)
-        println(desc*":")
+        println(io, desc*":")
         indent += nindent
     end
     sk = sort(collect(keys(a)))
     for k in sk
-        print(repeat(" ", indent),"$k: ")
+        print(io, repeat(" ", indent),"$k: ")
         if isa(a[k], Dict)
-            println("")
-            showdict(a[k], indent = indent + nindent)
+            println(io, "")
+            showdict(io, a[k], indent = indent + nindent)
         else
-            println("$(a[k])")
+            println(io, "$(a[k])")
         end
     end
 end
