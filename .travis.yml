@@ -3,10 +3,8 @@ os:
   - linux
   - osx
 julia:
+  - 0.7
   - nightly
 notifications:
   email: 
       - code@donner.at
-script:
-  - julia -e 'Pkg.init(); Pkg.clone("FunctionalDataUtils")'
-  - julia -e 'Pkg.test("FunctionalDataUtils")'
