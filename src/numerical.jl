@@ -170,7 +170,7 @@ function nanfunction(f,a::Array{T,2},dim) where {T}
     r = NaN*zeros(1,size(a,2))
     for n = 1:size(a,2)
       v = a[:,n]
-      v = v[flipbits!(isnan.(v))]
+      v = v[.!isnan.(v)]
       if !isempty(v)
         r[1,n] = f(v)
       end
@@ -180,7 +180,7 @@ function nanfunction(f,a::Array{T,2},dim) where {T}
     r = NaN*zeros(size(a,1),1)
     for m = 1:size(a,1)
       v = a[m,:]
-      v = v[flipbits!(isnan.(v))]
+      v = v[.!isnan.(v)]
       if !isempty(v)
         r[m,1] = f(v)
       end
@@ -190,7 +190,7 @@ function nanfunction(f,a::Array{T,2},dim) where {T}
     error("dim must be 1 or 2")
   end
 end
-nanfunction(f,a) = f(a[flipbits!(isnan.(a))])
+nanfunction(f,a) = f(a[.!isnan.(a)])
 nanmedian(a) = nanfunction(median,a)
 nanmedian(a,dim) = nanfunction(median,a,dim)
 nanmean(a) = nanfunction(mean,a)

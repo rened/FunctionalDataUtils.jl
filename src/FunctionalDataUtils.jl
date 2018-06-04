@@ -3,6 +3,7 @@ __precompile__()
 module FunctionalDataUtils
 
 using Pkg, Distributed
+using StatsBase: std
 
 LOGFILE = ""
 LOGTOFILE = false
@@ -20,14 +21,11 @@ using FunctionalData#, Colors
 using SHA, Compat
 
 isinstalled(a) = isa(Pkg.installed(a), VersionNumber)
-if isinstalled("Images")
-    import Images: AbstractImage, raw, grayim, colorim
-end
 
 include("computing.jl")
 include("numerical.jl")
 include("computervision.jl")
-include("graphics.jl")
+#include("graphics.jl")
 include("machinelearning.jl")
 # include("matlab.jl")
 include("output.jl")

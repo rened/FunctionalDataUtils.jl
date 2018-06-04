@@ -1,4 +1,4 @@
-# using MultivariateStats  # reenable ones 0.7 works
+# using MultivariateStats  # reenable once 0.7 works
 
 export iimg, iimg!
 export interp3, interp3with01coords, resize, resizeminmax
@@ -163,10 +163,10 @@ function overlaygradient(img, sp, sp2 = sp*0, sp3 = sp*0)
     sp2 = float(sp2)
     sp3 = float(sp3)
     if size(img,3)>1
-        img = mean(img,3)
+        img = mean(img, dims=3)
     end
     img = norm01(img)
-    r = cat(3,img,img,img)
+    r = cat(img,img,img, dims = 3)
 
     function gradient(a)
         g = falses(size(a))
@@ -191,7 +191,7 @@ end
 
 toranges(a) = [a[1,i]:a[2,i] for i in 1:len(a)]
 tosize(a) = tuple((a[2,:]-a[1,:].+1)...)
-tosize3(a) = (size(a,2)<3 ? a = cat(2,a,[1 2]') : nothing; tosize(a))
+tosize3(a) = (size(a,2)<3 ? a = cat(a,[1 2]', dims = 2) : nothing; tosize(a))
 
 function monogrid(rm,rn)
     m = [m for m in rm, n in rn]

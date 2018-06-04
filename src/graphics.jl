@@ -1,3 +1,7 @@
+if isinstalled("Images")
+    import Images: AbstractImage, raw, grayim, colorim
+end
+
 export jetcolormap, asimage, asimagesc, asimagescrgb, blocksvisu, pad, image2array, poly2mask, embedvisu
 export jetcolors, jetcolorshex, jetcolorants
 export aslogimage

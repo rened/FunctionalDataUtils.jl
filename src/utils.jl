@@ -2,23 +2,12 @@ export exitwithteststatus, asfloat16, asfloat32, asfloat64, asint, histdict, asd
 export tryasfloat32, tryasfloat64, tryasint, fromimage
 export serve
 export round, ceil, floor
+export contains_
 
 import Base: round, ceil, floor
 round(T::Type, a::AbstractArray) = round.(T,a)
 ceil(T::Type, a::AbstractArray) = ceil.(T,a)
 floor(T::Type, a::AbstractArray) = floor.(T,a)
-
-function exitwithteststatus()
-    eval(:(using FactCheck))
-    s = FactCheck.getstats()
-    if s["nNonSuccessful"] == 0
-        print("   PASSED!")
-    else
-        print("   FAILED: $(s["nFailures"]) failures and $(s["nErrors"]) errors")
-    end
-    println("   ( $(s["nNonSuccessful"]+s["nSuccesses"]) tests for runtests.jl $(join(ARGS, " ")))")
-    exit(s["nNonSuccessful"])
-end
 
 asint(a::Number) = round(Int, a)
 asint(a::AbstractArray) = asint.(a)
@@ -30,19 +19,18 @@ asfloat32(a) = eltype(a) == Float32 ? a : map(Float32, a)
 asfloat32(a::AbstractString) = parse(Float32, a)
 
 
-
-if isinstalled("Images")
-    function asfloat32(a::T) where {T<:AbstractImage}
-        a = raw(a)
-        if ndims(a) == 3
-            a = permutedims(a,[3,2,1])
-            a = a[:,:,1:min(sizeo(a),3)]
-        else
-            a = a'
-        end
-        @p asfloat32 a | divby 255 | clamp 0 1
-    end
-end
+# if isinstalled("Images")
+#     function asfloat32(a::T) where {T<:AbstractImage}
+#         a = raw(a)
+#         if ndims(a) == 3
+#             a = permutedims(a,[3,2,1])
+#             a = a[:,:,1:min(sizeo(a),3)]
+#         else
+#             a = a'
+#         end
+#         @p asfloat32 a | divby 255 | clamp 0 1
+#     end
+# end
 
 asfloat64(a) = map(Float64, a)
 asfloat64(a::AbstractString) = parse(Float64, a)
@@ -99,3 +87,4 @@ function serve(f::Function, portrange = 8080:8199; ngrok = false)
     Int(port)
 end
 
+contains_(x,a) = occursin(a,x)
