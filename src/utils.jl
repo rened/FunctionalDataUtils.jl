@@ -3,6 +3,7 @@ export tryasfloat32, tryasfloat64, tryasint, fromimage
 export serve
 export round, ceil, floor
 export contains_
+export symkeys
 
 import Base: round, ceil, floor
 round(T::Type, a::AbstractArray) = round.(T,a)
@@ -88,3 +89,10 @@ function serve(f::Function, portrange = 8080:8199; ngrok = false)
 end
 
 contains_(x,a) = occursin(a,x)
+
+function symkeys(a::Dict)
+    r = mapkeys(a, Symbol)
+    r = mapvalues(r, symkeys)
+    r
+end
+symkeys(a) = a
