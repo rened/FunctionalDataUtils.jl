@@ -56,6 +56,7 @@ function cache(f::FD.Callable, args...; version = "0 none set", kargs...)
     if existsfile(filename)
         try
             return @timedone "reloading $(string(f))" open(deserialize, filename)
+        catch
         end
         println("  reloading failed")
         prefix = "re"

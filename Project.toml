@@ -1,6 +1,6 @@
-authors = ["Rene Donner <code@donner.at>"]
 name = "FunctionalDataUtils"
 uuid = "ac2312be-67e5-11e8-0517-53290e6fe864"
+authors = ["Rene Donner <code@donner.at>"]
 version = "0.1.0"
 
 [deps]

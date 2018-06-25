@@ -506,7 +506,7 @@ function monoslic(img::AbstractArray{Float32}, spacing::Float32)
     asint(labels[asint(sv)])
 end
 
-border(a::AbstractArray{T,2}) where {T} = @p border cat(3,a,a,a) | snd
+border(a::AbstractArray{T,2}) where {T} = @p border cat(a,a,a,dims=3) | snd
 function border(a::AbstractArray{T,3}) where T
     a = asfloat32(a)
     r = zeros(size(a))
