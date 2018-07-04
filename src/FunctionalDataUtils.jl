@@ -3,7 +3,7 @@ __precompile__()
 module FunctionalDataUtils
 
 using Pkg, Distributed
-using StatsBase: std
+using Statistics
 
 LOGFILE = ""
 LOGTOFILE = false

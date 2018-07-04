@@ -3,7 +3,7 @@
 println("\n\n\nStarting runtests.jl $(join(ARGS, " ")) ...")
 
 using FunctionalData, FunctionalDataUtils, Test #, Colors
-using StatsBase: std
+using Statistics
 
 macro shouldtestset(a,b) length(ARGS) < 1 || ARGS[1] == a ?  :(@testset $a $b) : nothing end
 macro shouldtestset2(a,b) length(ARGS) < 2 || ARGS[2] == a ?  :(@testset $a $b) : nothing end
@@ -56,10 +56,10 @@ end
 
     end
     @shouldtestset2 "iimg" begin
-        a = [1 2 3]
-        @test size(iimg(a)) == (1,3)
-        @test typeof(iimg(a)) == Array{Float64,2}
-        @test iimg(a) == [1 3 6]
+        a_ = [1 2 3]
+        @test size(iimg(a_)) == (1,3)
+        @test typeof(iimg(a_)) == Array{Float64,2}
+        @test iimg(a_) == [1 3 6]
         @test iimg([1 2 3; 4 5 6]) == [1.0 3.0 6.0; 5.0 12.0 21.0]
         @test iimg(ones(1,2,3)) == float(cat([1 2],[2 4],[3 6],dims=3))
     end
