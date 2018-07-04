@@ -3,7 +3,7 @@
 println("\n\n\nStarting runtests.jl $(join(ARGS, " ")) ...")
 
 using FunctionalData, FunctionalDataUtils, Test #, Colors
-using Statistics
+using StatsBase
 
 macro shouldtestset(a,b) length(ARGS) < 1 || ARGS[1] == a ?  :(@testset $a $b) : nothing end
 macro shouldtestset2(a,b) length(ARGS) < 2 || ARGS[2] == a ?  :(@testset $a $b) : nothing end
