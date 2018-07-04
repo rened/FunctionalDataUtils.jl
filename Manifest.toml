@@ -18,7 +18,9 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[FunctionalData]]
 deps = ["Distributed", "Random", "Serialization", "SharedArrays"]
-path = "/home/rene/g7/FunctionalData.jl"
+git-tree-sha1 = "e48bd49c8c507edbba354c8427e4714d0a570afd"
+repo-rev = ""
+repo-url = "https://github.com/rened/FunctionalData.jl.git"
 uuid = "3307bf92-67e5-11e8-014e-27eee38d7b4d"
 version = "0.1.0"
 
