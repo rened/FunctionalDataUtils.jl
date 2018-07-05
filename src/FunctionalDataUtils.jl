@@ -2,8 +2,7 @@ __precompile__()
 
 module FunctionalDataUtils
 
-using Pkg, Distributed
-import StatsBase: std, rle, sample, sample!
+using Pkg, Distributed, Statistics
 
 LOGFILE = ""
 LOGTOFILE = false
