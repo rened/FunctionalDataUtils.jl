@@ -155,7 +155,7 @@ function resizeminmax(a, mins, maxs; kargs...)
 end
 
 
-function overlaygradient(img, sp, sp2 = sp*0, sp3 = sp*0)
+function overlaygradient(img, sp, sp2 = sp*0, sp3 = sp*0; hard = false)
     if size(img,1)!=size(sp,1) || size(img,2)!=size(sp,2)
         error("overlaygradient: sizes are not equal: size(img) == $(size(img)) and size(sp)==$(size(sp))")
     end
@@ -181,9 +181,19 @@ function overlaygradient(img, sp, sp2 = sp*0, sp3 = sp*0)
     gs = Base.map(gradient, Any[sp, sp2, sp3])
 
     for n = 1:size(img,2), m = 1:size(img,1)
-        r[m,n,1] = gs[1][m,n] ? 1 : r[m,n,1]
-        r[m,n,2] = gs[2][m,n] ? 1 : r[m,n,2]
-        r[m,n,3] = gs[3][m,n] ? 1 : r[m,n,3]
+        anyrgb = gs[1][m,n] || gs[2][m,n] || gs[3][m,n] 
+        if hard && anyrgb
+            r[m,n,:] = 0
+        end
+        if gs[1][m,n]
+            r[m,n,1] = 1
+        end
+        if gs[2][m,n]
+            r[m,n,2] = 1
+        end
+        if gs[3][m,n]
+            r[m,n,3] = 1
+        end
     end
     r
 end
