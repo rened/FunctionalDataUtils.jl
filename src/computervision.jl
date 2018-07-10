@@ -165,7 +165,6 @@ function overlaygradient(img, sp, sp2 = sp*0, sp3 = sp*0)
     if size(img,3)>1
         img = mean(img, dims=3)
     end
-    img = norm01(img)
     r = cat(img,img,img, dims = 3)
 
     function gradient(a)
