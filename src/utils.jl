@@ -4,6 +4,7 @@ export serve
 export round, ceil, floor
 export contains_
 export symkeys
+export writejls, readjls
 
 import Base: round, ceil, floor
 round(T::Type, a::AbstractArray) = round.(T,a)
@@ -96,3 +97,13 @@ function symkeys(a::Dict)
     r
 end
 symkeys(a) = a
+
+function writejls(a,filename)
+	tempfilename = @p concat filename "." randstring(10) ".tmp"
+	open(fd->serialize(fd,a),tempfilename,"w")
+	mv(tempfilename, filename, remove_destination = true)
+	filename
+end
+readjls(filename) = open(Compat.Serialization.deserialize, filename, "r")
+
+

@@ -1,5 +1,3 @@
-__precompile__()
-
 module FunctionalDataUtils
 
 using Pkg, Distributed, Statistics

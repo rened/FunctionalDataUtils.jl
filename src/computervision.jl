@@ -2,7 +2,7 @@
 
 export iimg, iimg!
 export interp3, interp3with01coords, resize, resizeminmax
-export meshgrid, meshgrid3, centeredgrid, centeredmeshgrid, overlaygradient, toranges, tosize, tosize3
+export meshgrid, meshgrid3, centeredgrid, centeredmeshgrid, gradient, overlaygradient, toranges, tosize, tosize3
 export imregionalmin, imregionalmax, monogen, bwlabel, bwlabel!, monoslic, border, sortcoords, bwdist
 export blocks, blocks!!, cutbox
 export rle, unrle
@@ -155,6 +155,17 @@ function resizeminmax(a, mins, maxs; kargs...)
 end
 
 
+function gradient(a)
+    g = falses(size(a))
+    for n = 1:size(a,2)-1, m = 1:size(a,1)
+        g[m,n] |= a[m,n+1] != a[m,n]
+    end
+    for n = 1:size(a,2), m = 1:size(a,1)-1
+        g[m,n] |= a[m+1,n] !=a[m,n]
+    end
+    g
+end
+
 function overlaygradient(img, sp, sp2 = sp*0, sp3 = sp*0; hard = false)
     if size(img,1)!=size(sp,1) || size(img,2)!=size(sp,2)
         error("overlaygradient: sizes are not equal: size(img) == $(size(img)) and size(sp)==$(size(sp))")
@@ -166,17 +177,6 @@ function overlaygradient(img, sp, sp2 = sp*0, sp3 = sp*0; hard = false)
         img = mean(img, dims=3)
     end
     r = cat(img,img,img, dims = 3)
-
-    function gradient(a)
-        g = falses(size(a))
-        for n = 1:size(a,2)-1, m = 1:size(a,1)
-            g[m,n] |= a[m,n+1] != a[m,n]
-        end
-        for n = 1:size(a,2), m = 1:size(a,1)-1
-            g[m,n] |= a[m+1,n] !=a[m,n]
-        end
-        g
-    end
 
     gs = Base.map(gradient, Any[sp, sp2, sp3])
 
