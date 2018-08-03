@@ -1,7 +1,7 @@
 name = "FunctionalDataUtils"
 uuid = "ac2312be-67e5-11e8-0517-53290e6fe864"
 authors = ["Rene Donner <code@donner.at>"]
-version = "0.2.0"
+version = "0.2.1"
 
 [deps]
 Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
