@@ -104,6 +104,6 @@ function writejls(a,filename)
 	mv(tempfilename, filename, remove_destination = true)
 	filename
 end
-readjls(filename) = open(Compat.Serialization.deserialize, filename, "r")
+readjls(filename) = open(Serialization.deserialize, filename, "r")
 
 

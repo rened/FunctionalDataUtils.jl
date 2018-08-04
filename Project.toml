@@ -4,7 +4,6 @@ authors = ["Rene Donner <code@donner.at>"]
 version = "0.2.1"
 
 [deps]
-Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 FunctionalData = "3307bf92-67e5-11e8-014e-27eee38d7b4d"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
