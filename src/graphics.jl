@@ -1,4 +1,5 @@
-if isinstalled("Images")
+using Pkg
+if haskey(Pkg.installed(), "Images")
     import Images: AbstractImage, raw, grayim, colorim
 end
 
@@ -40,7 +41,7 @@ function asimagescrgb(a, norm = true)
 end
 
 
-if isinstalled("Images")
+if haskey(Pkg.installed(), "Images")
     function asimage(a::AbstractArray{T,2}) where T
         colorview(Gray, a)
     end
@@ -59,6 +60,7 @@ function blocksvisu(a, padding = 0)
     padsize(a) = ceil(Int,a/4)
     try
         a = @p map a reshape | unstack
+    catch
     end
     @assert @p mapvec a size | uniq | len | isequal 1
     if ndims(fst(a))==3
