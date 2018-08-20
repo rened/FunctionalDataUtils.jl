@@ -1,7 +1,7 @@
-using Pkg
-if haskey(Pkg.installed(), "Images")
-    import Images: AbstractImage, raw, grayim, colorim
-end
+# using Pkg
+# if haskey(Pkg.installed(), "Images")
+    # import Images: AbstractImage, raw, grayim, colorim
+# end
 
 export jetcolormap, asimage, asimagesc, asimagescrgb, blocksvisu, pad, image2array, poly2mask, embedvisu
 export jetcolors, jetcolorshex, jetcolorants
@@ -41,16 +41,16 @@ function asimagescrgb(a, norm = true)
 end
 
 
-if haskey(Pkg.installed(), "Images")
-    function asimage(a::AbstractArray{T,2}) where T
-        colorview(Gray, a)
-    end
+# if haskey(Pkg.installed(), "Images")
+#     function asimage(a::AbstractArray{T,2}) where T
+#         colorview(Gray, a)
+#     end
 
-    function asimage(a::AbstractArray{T,3}) where T
-        colorview(RGB, permutedims(a,[3,1,2]))
-    end
-    asimagesc = asimage*asimagescrgb
-end
+#     function asimage(a::AbstractArray{T,3}) where T
+#         colorview(RGB, permutedims(a,[3,1,2]))
+#     end
+#     asimagesc = asimage*asimagescrgb
+# end
 
 function blocksvisu(a, padding = 0)
     a = unstack(a)
@@ -74,8 +74,8 @@ function blocksvisu(a, padding = 0)
 end
 
 function embedvisu(a::Matrix, patches::AbstractArray{T,N}, s = 2000) where {T<:Number,N}
-    mi = minimum(a,2)
-    ma = maximum(a,2)
+    mi = minimum(a, dims = 2)
+    ma = maximum(a, dims = 2)
     rm = rangem(patches)
     rn = rangen(patches)
     dim = ndims(patches) == 3 ? 1 : 3
@@ -84,9 +84,9 @@ function embedvisu(a::Matrix, patches::AbstractArray{T,N}, s = 2000) where {T<:N
     for i = 1:len(patches)
         x = @p at a i | t
         p = @p at patches i
-        r[x[1]+rm, x[2]+rn,:] = p
+        r[x[1] .+ rm, x[2] .+ rn, :] = p
     end
-    dim == 1 ? squeeze(r,3) : r
+    FD.squeeze(r)
 end
 
 function pad(a, siz, value = 0)
