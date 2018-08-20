@@ -321,13 +321,6 @@ end
         @test histdict(d, :a)  ==  r
         @test histdict([1,1,10])  ==  r
     end
-    @shouldtestset2 "jls" begin
-        a = [1,"a"]
-        filename = tempname()
-        writejls(a, filename)
-        b = readjls(filename)
-        @test b == a
-    end
 end
 
 println("done!\n")
