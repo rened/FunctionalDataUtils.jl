@@ -1,7 +1,4 @@
-# using Pkg
-# if haskey(Pkg.installed(), "Images")
-    # import Images: AbstractImage, raw, grayim, colorim
-# end
+import Images
 
 export jetcolormap, asimage, asimagesc, asimagescrgb, blocksvisu, pad, image2array, poly2mask, embedvisu
 export jetcolors, jetcolorshex, jetcolorants
@@ -40,17 +37,14 @@ function asimagescrgb(a, norm = true)
     r
 end
 
+function asimage(a::AbstractArray{T,2}) where T
+    Images.colorview(Images.Gray, a)
+end
 
-# if haskey(Pkg.installed(), "Images")
-#     function asimage(a::AbstractArray{T,2}) where T
-#         colorview(Gray, a)
-#     end
-
-#     function asimage(a::AbstractArray{T,3}) where T
-#         colorview(RGB, permutedims(a,[3,1,2]))
-#     end
-#     asimagesc = asimage*asimagescrgb
-# end
+function asimage(a::AbstractArray{T,3}) where T
+    Images.colorview(Images.RGB, permutedims(a,[3,1,2]))
+end
+asimagesc = asimage*asimagescrgb
 
 function blocksvisu(a, padding = 0)
     a = unstack(a)
