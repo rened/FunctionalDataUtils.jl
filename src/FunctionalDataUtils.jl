@@ -1,6 +1,6 @@
 module FunctionalDataUtils
 
-using Pkg, Distributed, Statistics
+using Distributed, Statistics
 
 LOGFILE = ""
 LOGTOFILE = false
@@ -16,8 +16,6 @@ export FDU
 import FunctionalData.apply
 using FunctionalData#, Colors
 using SHA
-
-isinstalled(a) = isa(Pkg.installed(a), VersionNumber)
 
 include("computing.jl")
 include("numerical.jl")

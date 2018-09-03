@@ -1,5 +1,3 @@
-import Images
-
 export jetcolormap, asimage, asimagesc, asimagescrgb, blocksvisu, pad, image2array, poly2mask, embedvisu
 export jetcolors, jetcolorshex, jetcolorants
 export aslogimage
@@ -37,14 +35,15 @@ function asimagescrgb(a, norm = true)
     r
 end
 
-function asimage(a::AbstractArray{T,2}) where T
-    Images.colorview(Images.Gray, a)
-end
+# import Images
+# function asimage(a::AbstractArray{T,2}) where T
+#     Images.colorview(Images.Gray, a)
+# end
 
-function asimage(a::AbstractArray{T,3}) where T
-    Images.colorview(Images.RGB, permutedims(a,[3,1,2]))
-end
-asimagesc = asimage*asimagescrgb
+# function asimage(a::AbstractArray{T,3}) where T
+#     Images.colorview(Images.RGB, permutedims(a,[3,1,2]))
+# end
+# asimagesc = asimage*asimagescrgb
 
 function blocksvisu(a, padding = 0)
     a = unstack(a)
