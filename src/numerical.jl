@@ -331,7 +331,7 @@ randnormbase(basedim, origdim) = @p randbase basedim origdim | transpose | map 
 
 randproj(a, targetdim::Int) = randbase(targetdim, sizem(a))*a
 
-squ(a) = squeeze(a,ndims(a))
+squ(a) = FD.squeeze(a,ndims(a))
 mean_(a) = squ(mean(a, ndims(a)))
 median_(a) = squ(median(a, ndims(a)))
 std_(a) = squ(std(a, ndims(a)))
