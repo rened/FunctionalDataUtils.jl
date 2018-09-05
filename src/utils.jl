@@ -47,7 +47,7 @@ function histdict(a)
     d
 end
 
-asdict(a) = @p fieldnames a | map (x->Pair(x,getfield(a,x))) | Dict
+asdict(a) = @p fieldnames typeof(a) | map (x->Pair(x,getfield(a,x))) | Dict
 asdict(a::T) where {T<:Union{Dict,AbstractString,Array}} = a
 
 function serve(basepath::AbstractString, args...;kargs...)
