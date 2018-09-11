@@ -17,7 +17,7 @@ function showdict(io::IO, a::AbstractDict, desc = ""; indent::Int = 0)
             println(io, "")
             showdict(io, a[k], indent = indent + nindent)
         else
-            println(io, "$(a[k])")
+            println(io, isnil(a[k]) ? repr(a[k]) : "$(a[k])")
         end
     end
 end
