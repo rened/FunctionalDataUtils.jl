@@ -8,7 +8,7 @@ export clamp, clamp!
 export nanfunction, nanmean, nanstd, nanmedian
 export distance
 export randbase, randnormbase, randproj
-export mean_, std_, var_, min_, max_, sum_, median_
+export mean_, std_, var_, min_, max_, sum_, median_, dropdims_
 
 
 #######################################
@@ -331,13 +331,13 @@ randnormbase(basedim, origdim) = @p randbase basedim origdim | transpose | map 
 
 randproj(a, targetdim::Int) = randbase(targetdim, sizem(a))*a
 
-squ(a) = FD.squeeze(a,ndims(a))
-mean_(a) = squ(mean(a, ndims(a)))
-median_(a) = squ(median(a, ndims(a)))
-std_(a) = squ(std(a, ndims(a)))
-var_(a) = squ(var(a, ndims(a)))
-min_(a) = squ(minimum(a, ndims(a)))
-max_(a) = squ(maximum(a, ndims(a)))
-sum_(a) = squ(sum(a, ndims(a)))
+dropdims_(a) = dropdims(a, dims = ndims(a))
+mean_(a) = dropdims_(mean(a, ndims(a)))
+median_(a) = dropdims_(median(a, ndims(a)))
+std_(a) = dropdims_(std(a, ndims(a)))
+var_(a) = dropdims_(var(a, ndims(a)))
+min_(a) = dropdims_(minimum(a, ndims(a)))
+max_(a) = dropdims_(maximum(a, ndims(a)))
+sum_(a) = dropdims_(sum(a, ndims(a)))
 
 normmean_(a) = a .- mean_(a)
