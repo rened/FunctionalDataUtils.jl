@@ -253,11 +253,12 @@ imregionalmax(img) = imregionmin(-float(img))
 
 
 
+linspace(from, to, nsteps::Int) = collect(range(from, stop = to, length = nsteps))
 
 monogen(img, spacing) = monogen_(asfloat32(img), asfloat32(spacing*2))
 
 function monogen_(img::AbstractArray{Float32,2}, wavelength::Float32)
-    Base.FFTW.set_num_threads(nphysicalcores())
+    FFTW.set_num_threads(nphysicalcores())
 
     myfft = fft
     myifft(x) = real(ifft(x))
@@ -268,21 +269,21 @@ function monogen_(img::AbstractArray{Float32,2}, wavelength::Float32)
     cols = size(img,2)
 
     # Generate horizontal and vertical frequency grids that vary from
-    (u2, u1) = monogrid([linspace(0.,0.5,floor(rows/2)); linspace(-0.5,0.,ceil(Int,rows/2))],
-                        [linspace(0.,0.5,floor(cols/2)); linspace(-0.5,.0,ceil(Int,cols/2))])
+    (u2, u1) = monogrid([linspace(0.,0.5,floor(Int,rows/2)); linspace(-0.5,0.,ceil(Int,rows/2))],
+                        [linspace(0.,0.5,floor(Int,cols/2)); linspace(-0.5,.0,ceil(Int,cols/2))])
 
-    radius = sqrt(u1.^2 + u2.^2)    # Matrix values contain frequency
+    radius = sqrt.(u1.^2 + u2.^2)    # Matrix values contain frequency
     radius[1,1] = 1
     radius[end,1] = 1
     radius[1,end] = 1
     radius[end,end] = 1
 
-    H1 = Complex64(0,1)*u1./radius   # The two monogenic filters in the frequency domain
+    H1 = ComplexF64(0,1)*u1./radius   # The two monogenic filters in the frequency domain
     u1 = nothing
-    H2 = Complex64(0,1)*u2./radius
+    H2 = ComplexF64(0,1)*u2./radius
     u2 = nothing
 
-    logGabor = exp((-(log(radius*wavelength)).^2) / (2 * log(asfloat32(0.65)).^2))
+    logGabor = exp.((-(log.(radius*wavelength)).^2) / (2 * log(asfloat32(0.65)).^2))
     #radius = nothing
     logGabor[1,1] = 0                    #% undo the radius fudge.
     logGabor[end,1] = 0
@@ -293,14 +294,12 @@ function monogen_(img::AbstractArray{Float32,2}, wavelength::Float32)
     logGabor=nothing
     h = myifft(img.*H1).^2
     H1=nothing
-    psi = atan2(myifft(img),sqrt(h+myifft(img.*H2).^2))
-    psi = atan2(myifft(img),sqrt(h+myifft(img.*H2).^2))
+    psi = atan.(myifft(img),sqrt.(h+myifft(img.*H2).^2))
+    psi = atan.(myifft(img),sqrt.(h+myifft(img.*H2).^2))
     h = nothing
     H2 = nothing
-    psi = sign(psi).*exp(-abs(psi))
+    psi = sign.(psi).*exp.(-abs.(psi))
 end
-
-
 
 
 
@@ -309,17 +308,18 @@ function monogen_(img::AbstractArray{Float32,3}, wavelength::Float32)
         return monogen_(img[:,:,1], wavelength)
     end
 
-    Base.FFTW.set_num_threads(nphysicalcores())
+    FFTW.set_num_threads(nphysicalcores())
 
     myfft = fft
     myifft(x) = real(ifft(x))
 
     img = myfft(img)
     (rows,cols,channels) = size(img)
-    (u2, u1, u3) = monogrid([linspace(0.,0.5,floor(rows/2)), linspace(-0.5,0.,ceil(Int,rows/2))],[linspace(0.,0.5,floor(cols/2)), linspace(-0.5,0.,ceil(Int,cols/2))],
-                            [linspace(0.,0.5,floor(channels/2)), linspace(-0.5,0.,ceil(Int,channels/2))]);
+    (u2, u1, u3) = monogrid([linspace(0.,0.5,floor(Int,rows/2));     linspace(-0.5,0.,ceil(Int,rows/2))],
+                            [linspace(0.,0.5,floor(Int,cols/2));     linspace(-0.5,0.,ceil(Int,cols/2))],
+                            [linspace(0.,0.5,floor(Int,channels/2)); linspace(-0.5,0.,ceil(Int,channels/2))])
 
-    radius = sqrt(u1.^2 + u2.^2 + u3.^2);    # Matrix values contain frequency
+    radius = sqrt.(u1.^2 + u2.^2 + u3.^2);    # Matrix values contain frequency
     # values as a radius from centre
     # (but quadrant shifted)
 
@@ -334,13 +334,13 @@ function monogen_(img::AbstractArray{Float32,3}, wavelength::Float32)
     radius[end,1,end] = 1;
     radius[end,end,1] = 1;
     radius[end,end,end] = 1;
-    H1 = u1./radius;   # The three monogenic filters in the frequency domain
+    H1 = u1 ./ radius;   # The three monogenic filters in the frequency domain
     u1=nothing
-    H2 = u2./radius;
+    H2 = u2 ./ radius;
     u2=nothing
-    H3 = u3./radius;
+    H3 = u3 ./ radius;
     u3=nothing
-    logGabor = exp((-(log(radius*wavelength)).^2) / (2 * asfloat32(log(0.65))^2));
+    logGabor = exp.((-(log.(radius*wavelength)).^2) / (2 * asfloat32(log(0.65))^2));
     radius=nothing
     logGabor[1,1,1] = 0;                    # undo the radius fudge.
     logGabor[1,1,end] = 0;               
@@ -352,16 +352,16 @@ function monogen_(img::AbstractArray{Float32,3}, wavelength::Float32)
     logGabor[end,end,end] = 0;           
     img = img.*logGabor;
     logGabor=nothing
-    h = myifft(img.*(Complex64(0,1)*H1)).^2;
+    h = myifft(img.*(ComplexF64(0,1)*H1)).^2;
     H1=nothing
-    h += myifft(img.*(Complex64(0,1)*H2)).^2;
+    h += myifft(img.*(ComplexF64(0,1)*H2)).^2;
     H2=nothing
-    h += myifft(img.*(Complex64(0,1)*H3)).^2;
+    h += myifft(img.*(ComplexF64(0,1)*H3)).^2;
     H3=nothing
 
-    psi = atan2(myifft(img), sqrt(h));
+    psi = atan.(myifft(img), sqrt.(h));
     img = nothing
-    psi = sign(psi).*exp(-abs(psi));
+    psi = sign.(psi).*exp.(-abs.(psi));
 end
 
 bwlabel(img, args...) = (a = Base.copy(img); bwlabel!(a, args...); a)
@@ -458,17 +458,23 @@ function monoslic(img::AbstractArray{Float32}, spacing::Float32)
 
     labels[:] = randperm(row(labels))
 
-    cand = imregionalmin(abs(M))
+    cand = imregionalmin(abs.(M))
     @assert size(cand)==size(M)
-    cand = find(cand)
+    LIN = LinearIndices(M)
 
     newcenters = zeros(Float32, size(centers))
     (_, csm, csn, cso) = size(newcenters)
 
-    myind2sub(a::AbstractArray{T,2},i) where {T} = ((m,n)=ind2sub(size(a),i);(m,n,1))
-    myind2sub(a,i) = ind2sub(size(a),i)
-    for c = cand
-        (m,n,o) = myind2sub(M,c)
+    # myind2sub(a::AbstractArray{T,2},i) where {T} = ((m,n)=indtosub(i,size(a));(m,n,1))
+    # myind2sub(a,i) = indtosub(i,size(a))
+    for c = findall(cand)
+        # (m,n,o) = myind2sub(M,c)
+        if ndims(M) == 3
+            (m,n,o) = Tuple(c)
+        else
+            (m,n) = Tuple(c)
+            o = 1
+        end
         mi = round(Int, m/spacing+0.5)
         ni = round(Int, n/spacing+0.5)
         oi = round(Int, o/spacing+0.5)
@@ -479,7 +485,7 @@ function monoslic(img::AbstractArray{Float32}, spacing::Float32)
         (centers[2,mi,ni,oi]-n).^2 + (centers[3,mi,ni,oi]-o).^2
         if d<bestdist[mi,ni,oi]
             bestdist[mi,ni,oi] = d
-            bestind[mi,ni,oi] = c
+            bestind[mi,ni,oi] = LIN[c]
             newcenters[:,mi,ni,oi] = [m;n;o]
             signs[mi,ni,oi] = asfloat32(M[m,n,o] > 0)
         end
@@ -487,14 +493,14 @@ function monoslic(img::AbstractArray{Float32}, spacing::Float32)
 
     B = M.>0
     M = nothing
-    notsigns = abs(signs.-1f0)
+    notsigns = abs.(signs.-1f0)
 
     maxd = typemax(eltype(newcenters))::Float32
 
     sv = zeros(Float32, size(B))
-    oi2s = Array(Int,3)
-    ni2s = Array(Int,3)
-    mi2s = Array(Int,3)
+    oi2s = zeros(Int,3)
+    ni2s = zeros(Int,3)
+    mi2s = zeros(Int,3)
     println("B loop")
     lookup = signs
     mis = asint(collect(1:size(B,1))./spacing.+0.5f0)
@@ -745,7 +751,7 @@ gaussmask(a, stdstoedge = 1) = gaussmask(sizem(a), sizen(a), stdstoedge)
 function gaussmask(sm::Number, sn::Number, stdstoedge = 1)
     m = mean([sm; sn])
     s = m/stdstoedge
-    a = meshgrid(linspace(-m, stop = m, length = sm), linspace(-m, stop = m, length = sn))
+    a = meshgrid(range(-m, stop = m, length = sm), range(-m, stop = m, length = sn))
     d2 = sum(a.*a, dims = 1)
     g = exp(-d2 / (2*s^2))
     g = norm01(g)

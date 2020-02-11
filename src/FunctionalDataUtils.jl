@@ -1,6 +1,7 @@
 module FunctionalDataUtils
 
 using Distributed, Statistics
+using FFTW, Random
 
 LOGFILE = ""
 LOGTOFILE = false
