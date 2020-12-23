@@ -113,14 +113,20 @@ function resize(a::AbstractArray{T}, s::AbstractArray; method = :interp) where {
     end
     r
 end
+
 function resize_kernel_nearest(r, a, mi, ni, oi) 
-    for o = 1:size(r,3), n = 1:size(r,2), m = 1:size(r,1)
-        r[m,n,o] = a[mi[m], ni[n], oi[o]]
+    Threads.@threads for o = 1:size(r,3)
+        for n = 1:size(r,2), m = 1:size(r,1)
+            r[m,n,o] = a[mi[m], ni[n], oi[o]]
+        end
     end
 end
+
 function resize_kernel_interp3(r, a, mi, ni, oi) 
-    for o = 1:size(r,3), n = 1:size(r,2), m = 1:size(r,1)
-        r[m,n,o] = interp3(a, mi[m], ni[n], oi[o])
+    Threads.@threads for o = 1:size(r,3)
+        for n = 1:size(r,2), m = 1:size(r,1)
+            r[m,n,o] = interp3(a, mi[m], ni[n], oi[o])
+        end
     end
 end
 
