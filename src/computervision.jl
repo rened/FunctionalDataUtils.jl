@@ -1,5 +1,7 @@
 # using MultivariateStats  # reenable once 0.7 works
 
+using FFTW
+
 export iimg, iimg!
 export interp3, interp3with01coords, resize, resizeminmax
 export meshgrid, meshgrid3, centeredgrid, centeredmeshgrid, gradient, overlaygradient, toranges, tosize, tosize3

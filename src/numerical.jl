@@ -15,8 +15,8 @@ export mean_, std_, var_, min_, max_, sum_, median_, dropdims_
 ##  normsum, norm01, normeuclid, normmeanstd
 ##  normsum!, norm01!, normeuclid!, normmeanstd!
 
-copyfloat(a::Array{T}) where {T<:Int} = float(a)
-copyfloat(a::Array{T}) where {T} = copy(a)
+copyfloat(a::AbstractArray{T}) where {T<:Int} = float(a)
+copyfloat(a::AbstractArray{T}) where {T} = copy(a)
 
 normsum(a) = normsum!(copyfloat(a))
 function normsum!(r)
